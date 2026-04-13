@@ -1,0 +1,3223 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Secure Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+/* ── THEMES ── */
+[data-theme="dark"] {
+  --bg: #050810; --s1: #0c1120; --s2: #111827; --s3: #1a2236;
+  --bd: rgba(99,179,237,0.13); --bd2: rgba(99,179,237,0.06);
+  --ac: #38bdf8; --ac2: #818cf8; --gn: #34d399;
+  --tx: #f0f6ff; --mt: #64748b; --dg: #f87171; --wn: #fbbf24;
+  --sh: rgba(0,0,0,0.4); --nb: rgba(10,15,30,0.9);
+  --ph: #374151; --g1: rgba(56,189,248,0.06); --g2: rgba(129,140,248,0.06);
+}
+[data-theme="light"] {
+  --bg: #f1f5f9; --s1: #ffffff; --s2: #f8fafc; --s3: #e2e8f0;
+  --bd: rgba(15,23,42,0.11); --bd2: rgba(15,23,42,0.05);
+  --ac: #0ea5e9; --ac2: #6366f1; --gn: #059669;
+  --tx: #0f172a; --mt: #64748b; --dg: #dc2626; --wn: #d97706;
+  --sh: rgba(0,0,0,0.06); --nb: rgba(255,255,255,0.92);
+  --ph: #94a3b8; --g1: rgba(14,165,233,0.05); --g2: rgba(99,102,241,0.04);
+}
+
+/* ── RESET ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--tx);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 0%, var(--g1), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 100%, var(--g2), transparent 60%);
+}
+
+/* ── PAGE SYSTEM ── */
+.page { display: none; position: relative; z-index: 1; animation: fadeUp 0.4s ease both; }
+.page.show { display: block; }
+.page.showflex { display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TYPOGRAPHY ── */
+.title { font-family: 'Syne', sans-serif; font-weight: 800; }
+
+/* ── NAV ── */
+nav {
+  background: var(--nb); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--bd);
+  height: 64px; padding: 0 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem;
+}
+.logo-sq {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--ac), var(--ac2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; color: #fff;
+}
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.av {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--ac2), var(--ac));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 8px;
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--mt); font-size: 0.83rem; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.15s, background 0.15s;
+}
+.back-btn:hover { color: var(--tx); background: var(--s3); }
+
+/* ── THEME BUTTON ── */
+.theme-btn {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: var(--s2); border: 1px solid var(--bd);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 15px;
+  transition: background 0.15s, transform 0.15s;
+}
+.theme-btn:hover { background: var(--s3); transform: scale(1.08); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 16px; border-radius: 9px; border: none;
+  font-size: 0.82rem; font-weight: 600; font-family: 'Syne', sans-serif;
+  cursor: pointer; transition: all 0.18s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--ac), var(--ac2));
+  color: #fff; box-shadow: 0 3px 14px rgba(56,189,248,0.2);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(56,189,248,0.3); }
+.btn-danger { background: rgba(248,113,113,0.1); color: var(--dg); border: 1px solid rgba(248,113,113,0.2); }
+.btn-danger:hover { background: rgba(248,113,113,0.18); }
+.btn-ghost { background: var(--s2); color: var(--mt); border: 1px solid var(--bd); }
+.btn-ghost:hover { color: var(--tx); background: var(--s3); }
+.btn-sm { padding: 6px 11px; font-size: 0.76rem; }
+.btn-full { width: 100%; justify-content: center; padding: 13px; font-size: 0.9rem; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+label.lbl {
+  display: block; font-size: 0.71rem; font-weight: 500;
+  color: var(--mt); text-transform: uppercase;
+  letter-spacing: 0.08em; margin-bottom: 6px;
+}
+input.inp, select.inp {
+  width: 100%; padding: 11px 13px;
+  background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 9px; color: var(--tx);
+  font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+  -webkit-appearance: none;
+}
+input.inp:focus, select.inp:focus {
+  border-color: var(--ac);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+}
+input.inp::placeholder { color: var(--ph); }
+.err { font-size: 0.74rem; color: var(--dg); margin-top: 4px; display: none; }
+.err.on { display: block; }
+
+/* ── CARD ── */
+.card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 16px; padding: 22px;
+  box-shadow: 0 2px 16px var(--sh);
+  transition: background 0.3s, border-color 0.3s;
+}
+
+/* ── BADGE ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 0.71rem; font-weight: 600;
+  padding: 3px 9px; border-radius: 20px;
+}
+.badge-green { background: rgba(52,211,153,0.1); color: var(--gn); }
+.badge-red   { background: rgba(248,113,113,0.1); color: var(--dg); }
+.badge-warn  { background: rgba(251,191,36,0.1);  color: var(--wn); }
+.badge-blue  { background: rgba(56,189,248,0.1);  color: var(--ac); }
+
+/* ── TOGGLE ── */
+.toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0; border-radius: 999px;
+  background: var(--s2); border: 1px solid var(--bd);
+  cursor: pointer; transition: background 0.2s;
+}
+.toggle-track::after {
+  content: ''; position: absolute;
+  width: 14px; height: 14px; top: 3px; left: 3px;
+  border-radius: 50%; background: var(--mt);
+  transition: transform 0.2s, background 0.2s;
+}
+.toggle input:checked + .toggle-track { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.4); }
+.toggle input:checked + .toggle-track::after { transform: translateX(18px); background: var(--gn); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 18px; padding: 28px;
+  width: 420px; max-width: 94vw; max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: fadeUp 0.3s ease both;
+}
+.modal-box.wide { width: 580px; }
+.modal-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; }
+.modal-close {
+  background: none; border: none; color: var(--mt); font-size: 18px;
+  cursor: pointer; padding: 2px 6px; border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+.modal-close:hover { color: var(--tx); background: var(--s2); }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 12px; padding: 11px 20px;
+  font-size: 0.85rem; z-index: 9999;
+  box-shadow: 0 8px 28px var(--sh);
+  opacity: 0; pointer-events: none;
+  transition: transform 0.35s cubic-bezier(.34,1.56,.64,1), opacity 0.3s;
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+/* ════════════════════════════════════
+   AUTH PAGE
+════════════════════════════════════ */
+.auth-wrap { display: flex; gap: 56px; align-items: center; padding: 24px; }
+
+.brand-side { max-width: 300px; }
+.brand-logo-big {
+  width: 50px; height: 50px; border-radius: 13px;
+  background: linear-gradient(135deg, var(--ac), var(--ac2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px;
+  color: #fff; margin-bottom: 22px;
+  box-shadow: 0 0 28px rgba(56,189,248,0.25);
+}
+.brand-side h1 {
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.9rem;
+  line-height: 1.15; margin-bottom: 12px;
+  background: linear-gradient(135deg, var(--tx) 40%, var(--ac));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.brand-side p { color: var(--mt); font-size: 0.88rem; line-height: 1.7; margin-bottom: 24px; }
+.trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: var(--mt); margin-bottom: 9px; }
+.trust-icon { width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+
+.auth-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 18px; padding: 32px; width: 390px;
+  box-shadow: 0 8px 40px var(--sh);
+  position: relative;
+}
+.auth-card::before {
+  content: ''; position: absolute; top: 0; left: 25%; right: 25%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ac), transparent);
+}
+
+.tab-row { display: flex; background: var(--s2); border-radius: 9px; padding: 3px; gap: 3px; margin-bottom: 22px; }
+.tab-btn {
+  flex: 1; padding: 8px; text-align: center; border-radius: 7px;
+  font-size: 0.82rem; font-weight: 500; cursor: pointer;
+  border: none; background: none; color: var(--mt);
+  font-family: 'DM Sans', sans-serif; transition: all 0.18s;
+}
+.tab-btn.active { background: var(--s1); color: var(--tx); border: 1px solid var(--bd); box-shadow: 0 1px 5px var(--sh); }
+
+.lock-banner {
+  background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25);
+  border-radius: 9px; padding: 11px 13px; margin-bottom: 14px; display: none;
+}
+.lock-banner.on { display: block; }
+.lock-banner strong { font-size: 0.83rem; color: var(--dg); display: block; margin-bottom: 2px; }
+.lock-banner span { font-size: 0.75rem; color: var(--mt); }
+
+.attempt-dots { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.dot-row { display: flex; gap: 5px; }
+.dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--s2); border: 1.5px solid var(--bd);
+  transition: background 0.2s;
+}
+.dot.hit { background: var(--dg); border-color: var(--dg); }
+
+.link-btn {
+  background: none; border: none; color: var(--ac); font-size: 0.81rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  text-decoration: underline; padding: 0;
+}
+
+.secure-note { display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.74rem; color: var(--mt); margin-top: 14px; }
+.secure-note i { color: var(--gn); }
+
+/* Notification preference buttons */
+.notif-choice-btn {
+  background: var(--s2); border: 2px solid var(--bd);
+  border-radius: 11px; padding: 12px 8px; cursor: pointer;
+  text-align: center; font-family: 'DM Sans', sans-serif;
+  transition: all 0.18s; color: var(--tx);
+}
+.notif-choice-btn:hover { border-color: var(--ac); background: var(--s3); }
+.notif-choice-btn.selected {
+  border-color: var(--ac); background: rgba(56,189,248,0.08);
+  box-shadow: 0 0 0 3px rgba(56,189,248,0.12);
+}
+
+/* Forgot password steps */
+.fp-panel { display: none; }
+.fp-panel.on { display: block; }
+.fp-head { text-align: center; margin-bottom: 20px; }
+.fp-icon { font-size: 34px; margin-bottom: 8px; }
+.fp-title { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+.fp-sub { font-size: 0.82rem; color: var(--mt); line-height: 1.6; }
+
+.step-dots { display: flex; align-items: center; justify-content: center; gap: 7px; margin-bottom: 20px; }
+.step-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--bd); transition: all 0.22s; }
+.step-dot.done { background: var(--gn); }
+.step-dot.active { background: var(--ac); transform: scale(1.4); }
+.step-line { width: 18px; height: 2px; background: var(--bd); border-radius: 2px; transition: background 0.22s; }
+.step-line.done { background: var(--gn); }
+
+.email-preview {
+  background: var(--s2); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 14px; margin: 12px 0; font-size: 0.81rem; line-height: 1.7;
+}
+.email-from { font-size: 0.7rem; color: var(--mt); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 5px; }
+.email-link { color: var(--ac); text-decoration: underline; cursor: pointer; font-weight: 600; display: inline-block; margin-top: 7px; }
+
+/* ════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════ */
+.dash-wrap { max-width: 1080px; margin: 0 auto; padding: 28px 20px; }
+
+.fraud-alert {
+  background: rgba(248,113,113,0.07); border: 1px solid rgba(248,113,113,0.22);
+  border-radius: 12px; padding: 13px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.fraud-alert-left { display: flex; align-items: center; gap: 12px; }
+.fraud-alert-left strong { font-size: 0.86rem; color: var(--dg); display: block; }
+.fraud-alert-left span { font-size: 0.76rem; color: var(--mt); }
+
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 13px; padding: 18px;
+  position: relative; overflow: hidden;
+  box-shadow: 0 2px 10px var(--sh);
+  transition: transform 0.18s, box-shadow 0.18s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--sh); }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; border-radius: 2px 2px 0 0; }
+.stat-card.green::before { background: var(--gn); }
+.stat-card.blue::before  { background: var(--ac); }
+.stat-card.purple::before { background: var(--ac2); }
+.stat-card.warn::before  { background: var(--wn); }
+.stat-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mt); margin-bottom: 8px; font-weight: 500; }
+.stat-value { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
+.stat-sub { font-size: 0.74rem; color: var(--mt); }
+
+.dash-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 18px; }
+@media (max-width: 740px) { .dash-grid { grid-template-columns: 1fr; } .brand-side { display: none; } .auth-wrap { justify-content: center; } }
+
+/* Transaction list (dashboard) */
+.tx-list { display: flex; flex-direction: column; gap: 8px; }
+.tx-empty { color: var(--mt); font-size: 0.84rem; text-align: center; padding: 18px 0; }
+.tx-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 12px; background: var(--s2);
+  border-radius: 9px; border: 1px solid transparent;
+  cursor: pointer; transition: background 0.14s;
+}
+.tx-row:hover { background: var(--s3); }
+.tx-row.sus { border-color: rgba(248,113,113,0.25); background: rgba(248,113,113,0.04); }
+.tx-row.blk { opacity: 0.45; }
+.tx-row-left { display: flex; align-items: center; gap: 10px; }
+.tx-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.tx-name { font-size: 0.86rem; font-weight: 500; }
+.tx-meta { font-size: 0.71rem; color: var(--mt); margin-top: 1px; }
+.tx-amount { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; color: var(--dg); }
+
+/* Credit card visual */
+.cc-card {
+  background: linear-gradient(135deg, #0d1b2a, #1b3a52, #0d2137);
+  border-radius: 14px; padding: 22px; height: 162px;
+  display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden; margin-bottom: 16px;
+}
+.cc-card::before { content: ''; position: absolute; width: 180px; height: 180px; border-radius: 50%; background: rgba(56,189,248,0.1); top: -50px; right: -50px; }
+.cc-card::after  { content: ''; position: absolute; width: 130px; height: 130px; border-radius: 50%; background: rgba(129,140,248,0.09); bottom: -40px; left: 10px; }
+.cc-chip { font-size: 20px; }
+.cc-number { font-family: 'Syne', sans-serif; font-size: 0.96rem; letter-spacing: 0.18em; color: rgba(255,255,255,0.8); }
+.cc-footer { display: flex; justify-content: space-between; font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+.cc-footer strong { color: #fff; }
+
+/* ════════════════════════════════════
+   TRANSACTIONS PAGE
+════════════════════════════════════ */
+.tx-page-wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px; }
+
+.filter-bar { display: flex; gap: 7px; margin-bottom: 18px; flex-wrap: wrap; }
+.filter-btn {
+  padding: 6px 14px; border-radius: 8px; font-size: 0.77rem; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--bd); background: var(--s1); color: var(--mt);
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.filter-btn.active { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: var(--ac); }
+
+.pills-row { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.pill {
+  padding: 6px 13px; background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 8px; font-size: 0.79rem; box-shadow: 0 1px 5px var(--sh);
+}
+.pill .pl { color: var(--mt); margin-right: 5px; }
+
+.tx-table {
+  background: var(--s1); border: 1px solid var(--bd);
+  border-radius: 14px; overflow: hidden; box-shadow: 0 2px 10px var(--sh);
+}
+.tx-table-head {
+  display: grid; grid-template-columns: 1fr 100px 110px 110px;
+  padding: 10px 18px; gap: 10px;
+  font-size: 0.68rem; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--mt);
+  border-bottom: 1px solid var(--bd); background: var(--s2);
+}
+.tx-table-row {
+  display: grid; grid-template-columns: 1fr 100px 110px 110px;
+  padding: 12px 18px; gap: 10px; align-items: center;
+  border-bottom: 1px solid var(--bd2); transition: background 0.13s;
+}
+.tx-table-row:last-child { border-bottom: none; }
+.tx-table-row:hover { background: var(--s2); }
+.tx-table-row.sus { background: rgba(248,113,113,0.04); border-left: 2px solid var(--dg); }
+.tx-table-row.blk { opacity: 0.38; }
+.tx-cell-info { display: flex; align-items: center; gap: 11px; }
+.tx-cell-r { text-align: right; }
+.tx-table-empty { padding: 32px; text-align: center; color: var(--mt); font-size: 0.84rem; }
+
+/* ════════════════════════════════════
+   FRAUD PAGE
+════════════════════════════════════ */
+.fraud-page-wrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: calc(100vh - 64px); padding: 28px 20px;
+}
+.fraud-card-box {
+  background: var(--s1); border: 1px solid rgba(248,113,113,0.22);
+  border-radius: 20px; padding: 40px 34px; max-width: 490px; width: 100%;
+  text-align: center; position: relative; overflow: hidden;
+  box-shadow: 0 8px 40px var(--sh);
+}
+.fraud-card-box::before {
+  content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(248,113,113,0.5), transparent);
+}
+@keyframes pulse { 0%,100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.7); opacity: 0; } }
+.fraud-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+.fraud-icon-wrap::before {
+  content: ''; position: absolute; width: 68px; height: 68px;
+  border-radius: 50%; background: rgba(248,113,113,0.12);
+  animation: pulse 2s infinite ease-out;
+}
+.fraud-icon-bg {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(248,113,113,0.1); border: 1.5px solid rgba(248,113,113,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; position: relative; z-index: 1;
+}
+.fraud-title { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--dg); margin-bottom: 7px; }
+.fraud-sub { color: var(--mt); font-size: 0.85rem; line-height: 1.65; margin-bottom: 24px; }
+.fraud-details { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 20px; text-align: left; }
+.detail-box { background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 12px; }
+.detail-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--mt); margin-bottom: 4px; }
+.detail-value { font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; }
+.detail-value.red { color: var(--dg); }
+.risk-bar-wrap { background: var(--s2); border: 1px solid var(--bd); border-radius: 10px; padding: 13px; margin-bottom: 20px; text-align: left; }
+.risk-bar-label { display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 8px; color: var(--mt); }
+.risk-bar-label strong { color: var(--dg); }
+.risk-track { height: 5px; background: var(--bd2); border-radius: 999px; overflow: hidden; }
+.risk-fill { height: 100%; background: linear-gradient(90deg, var(--dg), #ff7070); border-radius: 999px; }
+.fraud-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-block {
+  padding: 12px; border-radius: 10px; border: none;
+  background: var(--dg); color: #fff;
+  font-size: 0.86rem; font-weight: 700; font-family: 'Syne', sans-serif;
+  cursor: pointer; transition: all 0.18s; box-shadow: 0 4px 16px rgba(248,113,113,0.22);
+}
+.btn-block:hover { transform: translateY(-1px); box-shadow: 0 7px 24px rgba(248,113,113,0.3); }
+.btn-allow {
+  padding: 12px; border-radius: 10px;
+  background: var(--s2); color: var(--mt); border: 1px solid var(--bd);
+  font-size: 0.86rem; font-weight: 700; font-family: 'Syne', sans-serif;
+  cursor: pointer; transition: all 0.18s;
+}
+.btn-allow:hover { color: var(--tx); }
+
+/* ════════════════════════════════════
+   SETTINGS
+════════════════════════════════════ */
+.settings-wrap { max-width: 640px; margin: 0 auto; padding: 28px 20px; }
+.settings-section { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--mt); font-weight: 600; margin: 0 0 9px 3px; }
+.settings-card { background: var(--s1); border: 1px solid var(--bd); border-radius: 13px; overflow: hidden; margin-bottom: 20px; box-shadow: 0 2px 10px var(--sh); }
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid var(--bd2); transition: background 0.13s; }
+.settings-row:last-child { border-bottom: none; }
+.settings-row:hover { background: var(--s2); }
+.settings-row-left { display: flex; align-items: center; gap: 11px; }
+.settings-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.settings-name { font-size: 0.86rem; font-weight: 500; }
+.settings-desc { font-size: 0.72rem; color: var(--mt); margin-top: 1px; }
+
+/* ════════════════════════════════════
+   DB VIEWER TABS
+════════════════════════════════════ */
+.db-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.db-tab-btn {
+  padding: 6px 13px; border-radius: 8px; font-size: 0.78rem; font-weight: 500;
+  cursor: pointer; border: 1px solid var(--bd); background: var(--s2); color: var(--mt);
+  font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+}
+.db-tab-btn.active { background: rgba(56,189,248,0.1); border-color: rgba(56,189,248,0.3); color: var(--ac); }
+
+.info-box {
+  border-radius: 9px; padding: 11px 13px; margin-bottom: 13px; font-size: 0.82rem; line-height: 1.7;
+}
+.info-box.green { background: rgba(52,211,153,0.07); border: 1px solid rgba(52,211,153,0.2); color: var(--tx); }
+.info-box.blue  { background: rgba(56,189,248,0.07);  border: 1px solid rgba(56,189,248,0.2);  color: var(--mt); }
+
+.data-table { width: 100%; border-collapse: collapse; font-size: 0.79rem; }
+.data-table th {
+  background: var(--s2); color: var(--mt); font-size: 0.67rem;
+  text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 9px 11px; text-align: left; border-bottom: 1px solid var(--bd);
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 9px 11px; border-bottom: 1px solid var(--bd2);
+  max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  vertical-align: middle;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--s2); }
+.data-empty { text-align: center; padding: 28px; color: var(--mt); font-size: 0.84rem; }
+
+/* ════════════════════════════════════
+   CSV DROP ZONE
+════════════════════════════════════ */
+.drop-zone {
+  border: 2px dashed var(--bd); border-radius: 11px;
+  padding: 28px 18px; text-align: center; cursor: pointer;
+  background: var(--s2); transition: border-color 0.15s, background 0.15s;
+  margin-bottom: 13px;
+}
+.drop-zone:hover, .drop-zone.over { border-color: var(--ac); background: var(--s3); }
+.drop-zone .dz-icon { font-size: 28px; margin-bottom: 7px; }
+.drop-zone .dz-text { font-size: 0.86rem; font-weight: 600; margin-bottom: 3px; }
+.drop-zone .dz-sub  { font-size: 0.74rem; color: var(--mt); }
+
+.import-result {
+  border-radius: 9px; padding: 11px 13px;
+  margin-bottom: 13px; font-size: 0.83rem; display: none;
+}
+.import-result.good { background: rgba(52,211,153,0.08); border: 1px solid rgba(52,211,153,0.25); color: var(--gn); }
+.import-result.bad  { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: var(--dg); }
+
+#dash-profile-btn:hover { background: var(--s2) !important; }
+
+/* ── PROFILE PHOTO ── */
+.profile-photo-ring {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--ac2), var(--ac));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
+  position: relative; cursor: pointer; flex-shrink: 0;
+  overflow: hidden;
+  border: 2px solid var(--bd);
+}
+.profile-photo-ring img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.photo-edit-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; opacity: 0; transition: opacity 0.18s;
+  font-size: 18px;
+}
+.profile-photo-ring:hover .photo-edit-overlay { opacity: 1; }
+
+/* ── BLOCK REASON ── */
+.reason-btn {
+  width: 100%; padding: 10px 13px; border-radius: 9px;
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--tx); font-size: 0.83rem; font-family: 'DM Sans', sans-serif;
+  text-align: left; cursor: pointer; transition: all 0.15s;
+  margin-bottom: 7px; display: flex; align-items: center; gap: 9px;
+}
+.reason-btn:hover { background: var(--s3); border-color: var(--ac); }
+.reason-btn.selected { background: rgba(248,113,113,0.1); border-color: rgba(248,113,113,0.5); color: var(--dg); }
+
+/* ── REPORT MODAL ── */
+.report-option {
+  width: 100%; padding: 11px 13px; border-radius: 9px;
+  background: var(--s2); border: 1px solid var(--bd);
+  color: var(--tx); font-size: 0.83rem; font-family: 'DM Sans', sans-serif;
+  text-align: left; cursor: pointer; transition: all 0.15s;
+  margin-bottom: 7px; display: flex; align-items: center; gap: 9px;
+}
+.report-option:hover { background: var(--s3); border-color: var(--wn); }
+.report-option.selected { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.5); color: var(--wn); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ AUTH PAGE ═══════════════════ -->
+<div id="pg-auth" class="page showflex">
+  <div class="auth-wrap">
+
+    <div class="brand-side">
+      <div class="brand-logo-big">Q</div>
+      <h1>Quantum<br>Secure Card</h1>
+      <p>Military-grade encryption for every transaction. Protected 24/7.</p>
+      <div class="trust-item"><div class="trust-icon" style="background:rgba(52,211,153,.1)">🔒</div><span>256-bit encryption</span></div>
+      <div class="trust-item"><div class="trust-icon" style="background:rgba(56,189,248,.1)">⚡</div><span>Real-time fraud detection</span></div>
+      <div class="trust-item"><div class="trust-icon" style="background:rgba(129,140,248,.1)">🌐</div><span>Global monitoring</span></div>
+    </div>
+
+    <div class="auth-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+        <div class="tab-row" style="flex:1;margin-bottom:0">
+          <button class="tab-btn active" id="tab-li" onclick="showTab('login')">Sign In</button>
+          <button class="tab-btn" id="tab-su" onclick="showTab('signup')">Sign Up</button>
+        </div>
+        <button class="theme-btn" onclick="toggleTheme()" id="auth-th">🌙</button>
+      </div>
+
+      <!-- LOGIN PANEL -->
+      <div id="panel-login">
+        <!-- Session expired notice — shown for returning users -->
+        <div id="session-expired-notice" style="display:none;background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:9px;padding:10px 13px;margin-bottom:14px;display:none">
+          <div style="font-size:.79rem;font-weight:600;color:var(--ac);margin-bottom:2px">🔒 Session Expired</div>
+          <div style="font-size:.73rem;color:var(--mt)">For your security, please sign in again to continue.</div>
+        </div>
+        <div class="lock-banner" id="lock-box">
+          <strong>🔒 Account Locked</strong>
+          <span id="lock-msg">Too many failed attempts.</span>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Email Address</label>
+          <input class="inp" id="li-email" type="email" placeholder="you@example.com">
+        </div>
+        <div class="form-group">
+          <label class="lbl">Card Number</label>
+          <input class="inp" id="li-card" type="text" placeholder="•••• •••• •••• ••••" maxlength="19">
+        </div>
+        <div class="form-group">
+          <label class="lbl">PIN</label>
+          <input class="inp" id="li-pin" type="password" placeholder="Enter your PIN">
+          <div class="err" id="li-err">Invalid credentials. Please try again.</div>
+        </div>
+        <div class="attempt-dots" id="attempt-row" style="display:none">
+          <span style="font-size:.74rem;color:var(--dg)">Failed attempts:</span>
+          <div class="dot-row">
+            <div class="dot" id="dot1"></div>
+            <div class="dot" id="dot2"></div>
+            <div class="dot" id="dot3"></div>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full" id="li-btn" onclick="doLogin()" style="margin-top:6px">Sign In →</button>
+        <div style="text-align:center;margin-top:13px">
+          <button class="link-btn" onclick="showTab('forgot')">Forgot password?</button>
+        </div>
+        <div class="secure-note"><i>⚑</i> Secured with quantum encryption</div>
+      </div>
+
+      <!-- SIGNUP PANEL -->
+      <div id="panel-signup" style="display:none">
+        <div class="form-group">
+          <label class="lbl">Full Name</label>
+          <input class="inp" id="su-name" type="text" placeholder="Your full name">
+          <div class="err" id="su-name-e">Name is required.</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Email Address</label>
+          <input class="inp" id="su-email" type="email" placeholder="you@example.com">
+          <div class="err" id="su-email-e">Enter a valid email.</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Phone Number</label>
+          <input class="inp" id="su-phone" type="tel" placeholder="+91 98765 43210">
+          <div class="err" id="su-phone-e">Enter a valid phone number (min 10 digits).</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Card Number</label>
+          <input class="inp" id="su-card" type="text" placeholder="•••• •••• •••• ••••" maxlength="19">
+          <div class="err" id="su-card-e">Minimum 12 digits required.</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Create PIN</label>
+          <input class="inp" id="su-pin" type="password" placeholder="4–6 digit PIN">
+          <div class="err" id="su-pin-e">PIN must be at least 4 digits.</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Security Question</label>
+          <select class="inp" id="su-secq">
+            <option value="">— Choose a question —</option>
+            <option value="pet">What was the name of your first pet?</option>
+            <option value="school">What primary school did you attend?</option>
+            <option value="city">What city were you born in?</option>
+            <option value="mother">What is your mother's maiden name?</option>
+            <option value="street">What street did you grow up on?</option>
+          </select>
+          <div class="err" id="su-secq-e">Please choose a security question.</div>
+        </div>
+        <div class="form-group">
+          <label class="lbl">Security Answer</label>
+          <input class="inp" id="su-seca" type="text" placeholder="Your answer (not case-sensitive)">
+          <div class="err" id="su-seca-e">Answer is required.</div>
+        </div>
+
+        <!-- NOTIFICATION PREFERENCE -->
+        <div class="form-group">
+          <label class="lbl">🔔 Alert Preferences</label>
+          <p style="font-size:.74rem;color:var(--mt);margin-bottom:10px;line-height:1.6">How should we notify you for sign-ins, blocked transactions, and reports?</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="su-notif-options">
+            <button type="button" class="notif-choice-btn selected" data-val="both" onclick="selectNotifPref(this)">
+              <span style="font-size:18px;display:block;margin-bottom:4px">📧📱</span>
+              <span style="font-size:.8rem;font-weight:700;display:block">Email + SMS</span>
+              <span style="font-size:.68rem;color:var(--mt)">Recommended</span>
+            </button>
+            <button type="button" class="notif-choice-btn" data-val="email" onclick="selectNotifPref(this)">
+              <span style="font-size:18px;display:block;margin-bottom:4px">📧</span>
+              <span style="font-size:.8rem;font-weight:700;display:block">Email only</span>
+              <span style="font-size:.68rem;color:var(--mt)">Opens mail app</span>
+            </button>
+            <button type="button" class="notif-choice-btn" data-val="sms" onclick="selectNotifPref(this)">
+              <span style="font-size:18px;display:block;margin-bottom:4px">📱</span>
+              <span style="font-size:.8rem;font-weight:700;display:block">SMS only</span>
+              <span style="font-size:.68rem;color:var(--mt)">Via phone number</span>
+            </button>
+            <button type="button" class="notif-choice-btn" data-val="none" onclick="selectNotifPref(this)">
+              <span style="font-size:18px;display:block;margin-bottom:4px">🔕</span>
+              <span style="font-size:.8rem;font-weight:700;display:block">No alerts</span>
+              <span style="font-size:.68rem;color:var(--mt)">Not recommended</span>
+            </button>
+          </div>
+          <input type="hidden" id="su-notif-pref" value="both">
+        </div>
+
+        <button class="btn btn-primary btn-full" onclick="doSignup()" style="margin-top:6px">Create Account →</button>
+        <div class="secure-note"><i>⚑</i> Your data is never shared</div>
+      </div>
+
+      <!-- FORGOT PASSWORD PANEL -->
+      <div id="panel-forgot" style="display:none">
+        <div class="step-dots">
+          <div class="step-dot active" id="sd1"></div>
+          <div class="step-line" id="sl1"></div>
+          <div class="step-dot" id="sd2"></div>
+          <div class="step-line" id="sl2"></div>
+          <div class="step-dot" id="sd3"></div>
+        </div>
+
+        <!-- Step 1 -->
+        <div class="fp-panel on" id="fps1">
+          <div class="fp-head"><div class="fp-icon">📧</div><div class="fp-title">Reset Your PIN</div><div class="fp-sub">Enter your registered email and we'll send you a reset link.</div></div>
+          <div class="form-group">
+            <label class="lbl">Email Address</label>
+            <input class="inp" id="fp-email" type="email" placeholder="you@example.com">
+            <div class="err" id="fp-email-e">No account found with that email.</div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="fpStep1()" style="margin-top:6px">Send Reset Link →</button>
+          <div style="text-align:center;margin-top:12px"><button class="link-btn" onclick="showTab('login')">← Back to Sign In</button></div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="fp-panel" id="fps2">
+          <div class="fp-head"><div class="fp-icon">✉️</div><div class="fp-title">Check Your Email</div><div class="fp-sub">Reset link sent to <strong id="fp-email-show"></strong></div></div>
+          <div class="email-preview">
+            <div class="email-from">From: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6e1d0b0d1b1c071a172e1f1b0f001a1b031d0b0d1b1c0b400f1e1e">[email&#160;protected]</a> · Just now</div>
+            <div>Hi! You requested a PIN reset for your Quantum Secure Card account.</div>
+            <div class="email-link" onclick="fpStep2()">🔗 Click here to reset your PIN →</div>
+          </div>
+          <p style="font-size:.73rem;color:var(--mt);text-align:center">This link expires in 15 minutes.</p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="fp-panel" id="fps3">
+          <div class="fp-head"><div class="fp-icon">🔐</div><div class="fp-title">Verify Identity</div><div class="fp-sub">Answer your security question to confirm it's you.</div></div>
+          <div class="form-group">
+            <label class="lbl" id="fp-q-lbl">Security Question</label>
+            <input class="inp" id="fp-ans" type="text" placeholder="Your answer">
+            <div class="err" id="fp-ans-e">Incorrect answer. Try again.</div>
+          </div>
+          <div class="form-group">
+            <label class="lbl">New PIN</label>
+            <input class="inp" id="fp-newpin" type="password" placeholder="New 4–6 digit PIN">
+            <div class="err" id="fp-newpin-e">PIN must be at least 4 digits.</div>
+          </div>
+          <div class="form-group">
+            <label class="lbl">Confirm New PIN</label>
+            <input class="inp" id="fp-conpin" type="password" placeholder="Re-enter new PIN">
+            <div class="err" id="fp-conpin-e">PINs do not match.</div>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="fpStep3()" style="margin-top:6px">Save New PIN →</button>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="fp-panel" id="fps4">
+          <div style="text-align:center;padding:20px 0">
+            <div style="font-size:50px;margin-bottom:14px">✅</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:9px">PIN Reset!</div>
+            <p style="color:var(--mt);font-size:.85rem;margin-bottom:22px">You can now sign in with your new PIN.</p>
+            <button class="btn btn-primary btn-full" onclick="showTab('login')">Go to Sign In →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div id="pg-dash" class="page" style="display:none">
+  <nav>
+    <div class="nav-logo"><div class="logo-sq">Q</div>Quantum Secure</div>
+    <div class="nav-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="dash-th">🌙</button>
+      <div style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px;border-radius:10px;transition:background 0.15s" onclick="openProfile()" id="dash-profile-btn" title="Edit Profile">
+        <div class="av" id="dash-av">A</div>
+        <span id="dash-name" style="font-size:.84rem;color:var(--mt)"></span>
+        <span style="font-size:.7rem;color:var(--mt)">✏️</span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+  <div class="dash-wrap">
+    <div style="margin-bottom:22px">
+      <div class="title" id="dash-greet" style="font-size:1.4rem;margin-bottom:3px">Good day 👋</div>
+      <p style="color:var(--mt);font-size:.86rem">Here's your card activity summary</p>
+    </div>
+
+    <!-- Notification setup banner (only shown when keys not configured) -->
+    <div id="notif-setup-banner" style="display:none;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);border-radius:12px;padding:13px 16px;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:20px">⚙️</span>
+        <div>
+          <strong style="font-size:.84rem;color:var(--wn);display:block">Email alerts not set up</strong>
+          <span style="font-size:.74rem;color:var(--mt)">Connect EmailJS to get real sign-in &amp; fraud alerts in your inbox — free, takes 2 min.</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;flex-shrink:0">
+        <button class="btn btn-sm" style="background:rgba(251,191,36,0.15);color:var(--wn);border:1px solid rgba(251,191,36,0.35)" onclick="openEmailSetup()">Set Up →</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('notif-setup-banner').style.display='none'">✕</button>
+      </div>
+    </div>
+
+    <div class="fraud-alert" id="fraud-alert" style="display:none">
+      <div class="fraud-alert-left">
+        <span style="font-size:20px">⚠️</span>
+        <div><strong id="fraud-alert-text"></strong><span>Review immediately</span></div>
+      </div>
+      <button class="btn btn-danger btn-sm" onclick="goTo('fraud')">Review →</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card green" style="animation-delay:.04s">
+        <div class="stat-label">Card Status</div>
+        <div class="stat-value">Secure</div>
+        <span class="badge badge-green">● Active</span>
+      </div>
+      <div class="stat-card blue" style="animation-delay:.08s">
+        <div class="stat-label">Total Spent</div>
+        <div class="stat-value" id="stat-spent">₹0</div>
+        <div class="stat-sub" id="stat-count">0 transactions</div>
+      </div>
+      <div class="stat-card purple" style="animation-delay:.12s">
+        <div class="stat-label">Normal</div>
+        <div class="stat-value" id="stat-normal">0</div>
+        <div class="stat-sub">transactions</div>
+      </div>
+      <div class="stat-card warn" style="animation-delay:.16s">
+        <div class="stat-label">Flagged</div>
+        <div class="stat-value" id="stat-flagged">0</div>
+        <div id="stat-flag-badge"><span class="badge badge-green">● All Clear</span></div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <div class="card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <span class="title" style="font-size:.9rem">Recent Transactions</span>
+          <button onclick="goTo('tx')" style="background:none;border:none;color:var(--ac);font-size:.77rem;cursor:pointer;font-family:'DM Sans',sans-serif">View all →</button>
+        </div>
+        <div class="tx-list" id="dash-tx-list"><div class="tx-empty">No transactions yet</div></div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span class="title" style="font-size:.9rem">Your Card</span>
+            <span class="badge badge-green">● Active</span>
+          </div>
+          <div class="cc-card">
+            <div class="cc-chip">📟</div>
+            <div class="cc-number" id="cc-number">•••• •••• •••• ••••</div>
+            <div class="cc-footer">
+              <div><div>Cardholder</div><strong id="cc-holder">—</strong></div>
+              <div><div>Expires</div><strong>09/27</strong></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="goTo('tx')">📊 Transactions</button>
+            <button class="btn btn-danger btn-sm" onclick="goTo('fraud')">⚠ Fraud</button>
+            <button class="btn btn-ghost btn-sm" onclick="openMonthlyChart()">📈 Monthly</button>
+            <button class="btn btn-ghost btn-sm" onclick="goTo('settings')">⚙ Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ TRANSACTIONS PAGE ═══════════════════ -->
+<div id="pg-tx" class="page" style="display:none">
+  <nav>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="back-btn" onclick="goTo('dash')">← Dashboard</button>
+      <span class="title" style="font-size:.95rem">Transaction Monitoring</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="theme-btn" onclick="toggleTheme()" id="tx-th">🌙</button>
+      <button class="btn btn-ghost btn-sm" onclick="openImport()">📥 Import CSV</button>
+      <button class="btn btn-ghost btn-sm" onclick="exportCSV()">📤 Export</button>
+      <button class="btn btn-primary btn-sm" onclick="openAdd()">＋ Add</button>
+    </div>
+  </nav>
+  <div class="tx-page-wrap">
+    <div style="margin-bottom:20px">
+      <div class="title" style="font-size:1.35rem">All Transactions</div>
+      <p style="color:var(--mt);font-size:.85rem;margin-top:3px" id="tx-subtitle">No transactions yet</p>
+    </div>
+    <div class="pills-row" id="tx-pills"></div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" onclick="setFilter('normal',this)">Normal</button>
+      <button class="filter-btn" onclick="setFilter('suspicious',this)">Suspicious</button>
+      <button class="filter-btn" onclick="setFilter('blocked',this)">Blocked</button>
+    </div>
+    <div class="tx-table">
+      <div class="tx-table-head">
+        <span>Merchant</span><span>Status</span>
+        <span class="tx-cell-r">Amount</span><span class="tx-cell-r">Action</span>
+      </div>
+      <div id="tx-table-body"><div class="tx-table-empty">No transactions yet</div></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ FRAUD PAGE ═══════════════════ -->
+<div id="pg-fraud" class="page" style="display:none">
+  <nav>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="back-btn" onclick="goTo('dash')">← Dashboard</button>
+      <span class="title" style="font-size:.95rem">Fraud Alerts</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="fraud-th">🌙</button>
+  </nav>
+  <div class="fraud-page-wrap">
+    <div id="fraud-clear" style="display:none;text-align:center">
+      <div style="font-size:50px;margin-bottom:14px">✅</div>
+      <div class="title" style="font-size:1.2rem;margin-bottom:7px">All Clear</div>
+      <p style="color:var(--mt);font-size:.86rem">No suspicious transactions detected.</p>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="goTo('dash')">Back to Dashboard</button>
+    </div>
+    <div id="fraud-content"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ SETTINGS PAGE ═══════════════════ -->
+<div id="pg-settings" class="page" style="display:none">
+  <nav>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button class="back-btn" onclick="goTo('dash')">← Dashboard</button>
+      <span class="title" style="font-size:.95rem">Security Settings</span>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="set-th">🌙</button>
+  </nav>
+  <div class="settings-wrap">
+    <div class="title" style="font-size:1.35rem;margin-bottom:4px">Security Settings</div>
+    <p style="color:var(--mt);font-size:.85rem;margin-bottom:24px">Manage how Quantum Secure protects your card</p>
+
+    <div class="settings-section">Fraud Protection</div>
+    <div class="settings-card" style="margin-bottom:20px">
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(52,211,153,.1)">🛡️</div><div><div class="settings-name">Fraud Detection</div><div class="settings-desc">AI-powered monitoring</div></div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label></div>
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(56,189,248,.1)">🔔</div><div><div class="settings-name">Suspicious Alerts</div><div class="settings-desc">Notified for flagged activity</div></div></div><label class="toggle"><input type="checkbox" checked><div class="toggle-track"></div></label></div>
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(248,113,113,.1)">🌍</div><div><div class="settings-name">Block Unknown Locations</div><div class="settings-desc">Auto-block unrecognised areas</div></div></div><label class="toggle"><input type="checkbox"><div class="toggle-track"></div></label></div>
+    </div>
+
+    <div class="settings-section">Appearance</div>
+    <div class="settings-card" style="margin-bottom:20px">
+      <div class="settings-row">
+        <div class="settings-row-left"><div class="settings-icon" id="th-icon" style="background:rgba(56,189,248,.1)">🌙</div><div><div class="settings-name" id="th-label">Dark Mode</div><div class="settings-desc">Switch between light and dark</div></div></div>
+        <label class="toggle"><input type="checkbox" id="th-check" checked onchange="toggleTheme()"><div class="toggle-track"></div></label>
+      </div>
+    </div>
+
+    <div class="settings-section">Data &amp; Storage</div>
+    <div class="settings-card" style="margin-bottom:20px">
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(52,211,153,.1)">💾</div><div><div class="settings-name">Auto-Saved in Browser</div><div class="settings-desc" id="storage-info">Loading...</div></div></div><span class="badge badge-green">● Saved</span></div>
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(56,189,248,.1)">🔍</div><div><div class="settings-name">View Saved Data</div><div class="settings-desc">All accounts &amp; transactions</div></div></div><button class="btn btn-ghost btn-sm" onclick="openDB()">View DB</button></div>
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(129,140,248,.1)">📦</div><div><div class="settings-name">Backup All Data</div><div class="settings-desc">Download as .json file</div></div></div><button class="btn btn-ghost btn-sm" onclick="backupData()">Backup</button></div>
+      <div class="settings-row"><div class="settings-row-left"><div class="settings-icon" style="background:rgba(251,191,36,.1)">♻️</div><div><div class="settings-name">Restore from Backup</div><div class="settings-desc">Load a previous backup file</div></div></div><button class="btn btn-ghost btn-sm" onclick="document.getElementById('restore-file').click()">Restore</button><input type="file" id="restore-file" accept=".json" style="display:none" onchange="restoreBackup(this)"></div>
+    </div>
+
+    <div class="settings-section">Notifications</div>
+    <div class="settings-card" style="margin-bottom:20px">
+      <div class="settings-row">
+        <div class="settings-row-left">
+          <div class="settings-icon" style="background:rgba(56,189,248,.1)">✉️</div>
+          <div>
+            <div class="settings-name">Email Alerts (EmailJS)</div>
+            <div class="settings-desc" id="settings-emailjs-status">Not configured</div>
+          </div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="openEmailSetup()" id="settings-emailjs-btn">Set Up</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="toast('✅ Settings saved!','g')">Save Changes</button>
+  </div>
+</div>
+
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+
+<!-- ADD TRANSACTION -->
+<div class="modal-overlay" id="modal-add">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">Add Transaction</span>
+      <button class="modal-close" onclick="closeModal('modal-add')">✕</button>
+    </div>
+    <div class="form-group"><label class="lbl">Merchant Name</label><input class="inp" id="add-merchant" placeholder="e.g. Amazon, Zomato"><div class="err" id="add-merr">Merchant name required.</div></div>
+    <div class="form-group"><label class="lbl">Amount (₹)</label><input class="inp" id="add-amount" type="number" placeholder="2000" min="1"><div class="err" id="add-aerr">Enter a valid amount.</div></div>
+    <div class="form-group"><label class="lbl">Category</label>
+      <select class="inp" id="add-cat">
+        <option value="🛒 Shopping">🛒 Shopping</option>
+        <option value="🍔 Food">🍔 Food</option>
+        <option value="🚗 Transport">🚗 Transport</option>
+        <option value="💊 Health">💊 Health</option>
+        <option value="🎮 Entertainment">🎮 Entertainment</option>
+        <option value="❓ Other">❓ Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="lbl">Status</label><select class="inp" id="add-status"><option value="normal">Normal</option><option value="suspicious">Suspicious ⚠</option></select></div>
+    <button class="btn btn-primary btn-full" onclick="submitAdd()" style="margin-top:8px">Add Transaction →</button>
+  </div>
+</div>
+
+<!-- CSV IMPORT -->
+<div class="modal-overlay" id="modal-csv">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">📥 Import Transactions CSV</span>
+      <button class="modal-close" onclick="closeModal('modal-csv')">✕</button>
+    </div>
+    <div class="drop-zone" id="drop-zone"
+      onclick="document.getElementById('csv-file-input').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="handleDrop(event)">
+      <div class="dz-icon">📂</div>
+      <div class="dz-text">Click to choose CSV or drag &amp; drop</div>
+      <div class="dz-sub" id="csv-filename">No file chosen</div>
+    </div>
+    <input type="file" id="csv-file-input" accept=".csv" style="display:none" onchange="handleCsvFile(this)">
+    <div class="col-hint">
+      Supports <strong style="color:var(--tx)">credit_card_transactions.csv</strong> — auto-maps:
+      <code>merchant</code> · <code>amt</code> · <code>category</code> ·
+      <code>is_fraud</code>→status · <code>trans_date</code> ·
+      <code>first/last</code> · <code>city/state</code>
+    </div>
+    <div class="import-result" id="import-result"></div>
+    <button class="btn btn-primary btn-full" id="import-btn" onclick="runImport()" disabled style="opacity:.4;margin-top:4px">Import →</button>
+  </div>
+</div>
+
+<!-- DB VIEWER -->
+<div class="modal-overlay" id="modal-db">
+  <div class="modal-box wide">
+    <div class="modal-head">
+      <span class="modal-title">🗄️ Saved Database</span>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="backupData()">📦 Backup</button>
+        <button class="modal-close" onclick="closeModal('modal-db')">✕</button>
+      </div>
+    </div>
+    <div class="db-tabs">
+      <button class="db-tab-btn active" id="dbt-users" onclick="dbTab('users')">👤 Users</button>
+      <button class="db-tab-btn" id="dbt-txs"   onclick="dbTab('txs')">💳 Transactions</button>
+      <button class="db-tab-btn" id="dbt-info"  onclick="dbTab('info')">🔑 Storage Info</button>
+    </div>
+    <div id="db-content" style="max-height:460px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- EDIT PROFILE MODAL -->
+<div class="modal-overlay" id="modal-profile">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">👤 Edit Profile</span>
+      <button class="modal-close" onclick="closeModal('modal-profile')">✕</button>
+    </div>
+    <!-- Photo -->
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--bd)">
+      <div class="profile-photo-ring" id="prof-photo-ring" onclick="document.getElementById('prof-photo-input').click()">
+        <span id="prof-photo-initial">A</span>
+        <img id="prof-photo-img" src="" style="display:none;position:absolute;inset:0">
+        <div class="photo-edit-overlay">📷</div>
+      </div>
+      <input type="file" id="prof-photo-input" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem" id="prof-display-name">—</div>
+        <div style="font-size:.76rem;color:var(--mt);margin-top:2px" id="prof-display-email">—</div>
+        <button onclick="document.getElementById('prof-photo-input').click()" class="btn btn-ghost btn-sm" style="margin-top:7px;font-size:.72rem">📷 Change Photo</button>
+        <button onclick="removeProfilePhoto()" class="btn btn-ghost btn-sm" style="margin-top:7px;font-size:.72rem;color:var(--dg)" id="prof-remove-photo" style="display:none">🗑 Remove</button>
+      </div>
+    </div>
+    <!-- Fields -->
+    <div class="form-group">
+      <label class="lbl">Full Name</label>
+      <input class="inp" id="prof-name" type="text" placeholder="Your full name">
+    </div>
+    <div class="form-group">
+      <label class="lbl">Email Address</label>
+      <input class="inp" id="prof-email" type="email" placeholder="you@example.com">
+      <div class="err" id="prof-email-e">Enter a valid email.</div>
+    </div>
+    <div class="form-group">
+      <label class="lbl">Phone Number</label>
+      <input class="inp" id="prof-phone" type="tel" placeholder="+91 98765 43210">
+      <div class="err" id="prof-phone-e">Enter a valid phone number (min 10 digits).</div>
+    </div>
+
+    <!-- Notification preference in profile -->
+    <div class="form-group">
+      <label class="lbl">🔔 Alert Preferences</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px" id="prof-notif-options">
+        <button type="button" class="notif-choice-btn" data-val="both" onclick="selectProfNotifPref(this)">
+          <span style="font-size:15px">📧📱</span>
+          <span style="font-size:.75rem;font-weight:700;display:block;margin-top:2px">Email + SMS</span>
+        </button>
+        <button type="button" class="notif-choice-btn" data-val="email" onclick="selectProfNotifPref(this)">
+          <span style="font-size:15px">📧</span>
+          <span style="font-size:.75rem;font-weight:700;display:block;margin-top:2px">Email only</span>
+        </button>
+        <button type="button" class="notif-choice-btn" data-val="sms" onclick="selectProfNotifPref(this)">
+          <span style="font-size:15px">📱</span>
+          <span style="font-size:.75rem;font-weight:700;display:block;margin-top:2px">SMS only</span>
+        </button>
+        <button type="button" class="notif-choice-btn" data-val="none" onclick="selectProfNotifPref(this)">
+          <span style="font-size:15px">🔕</span>
+          <span style="font-size:.75rem;font-weight:700;display:block;margin-top:2px">No alerts</span>
+        </button>
+      </div>
+      <input type="hidden" id="prof-notif-pref" value="both">
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveProfile()">Save Changes ✓</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-profile')">Cancel</button>
+    </div>
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bd)">
+      <button class="btn btn-ghost btn-sm" onclick="openReportModal('self')" style="width:100%;justify-content:center;font-size:.78rem;color:var(--wn);border-color:rgba(251,191,36,0.3)">⚠️ Report an Issue</button>
+    </div>
+  </div>
+</div>
+
+<!-- BLOCK REASON MODAL -->
+<div class="modal-overlay" id="modal-block-reason">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">🚫 Block Account</span>
+      <button class="modal-close" onclick="closeModal('modal-block-reason')">✕</button>
+    </div>
+    <p style="font-size:.83rem;color:var(--mt);margin-bottom:16px">Please tell us why you're blocking this account. This helps us keep the platform safe.</p>
+    <div id="block-reasons-list">
+      <button class="reason-btn" onclick="selectBlockReason(this,'Spam or unsolicited messages')">📧 Spam or unsolicited messages</button>
+      <button class="reason-btn" onclick="selectBlockReason(this,'Harassment or abusive behaviour')">😡 Harassment or abusive behaviour</button>
+      <button class="reason-btn" onclick="selectBlockReason(this,'Fraudulent or scam activity')">💸 Fraudulent or scam activity</button>
+      <button class="reason-btn" onclick="selectBlockReason(this,'Impersonation of someone else')">🎭 Impersonation of someone else</button>
+      <button class="reason-btn" onclick="selectBlockReason(this,'Unauthorised card usage')">💳 Unauthorised card usage</button>
+      <button class="reason-btn" onclick="selectBlockReason(this,'other')">✏️ Something else…</button>
+    </div>
+    <div id="block-other-wrap" style="display:none;margin-top:10px">
+      <label class="lbl">Describe the reason</label>
+      <input class="inp" id="block-other-input" placeholder="Tell us what happened…">
+      <div class="err" id="block-other-e">Please describe the reason.</div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="confirmBlock()">Confirm Block</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-block-reason')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- REPORT MODAL -->
+<div class="modal-overlay" id="modal-report">
+  <div class="modal-box" style="width:480px;max-width:96vw">
+    <div class="modal-head">
+      <span class="modal-title">⚠️ Report an Issue</span>
+      <button class="modal-close" onclick="closeModal('modal-report')">✕</button>
+    </div>
+    <p style="font-size:.81rem;color:var(--mt);margin-bottom:16px">Help us investigate. Please fill in as many details as possible — our security team reviews every report within 24 hours.</p>
+
+    <!-- Issue Type -->
+    <div class="form-group">
+      <label class="lbl">Issue Type</label>
+      <div id="report-options-list" style="display:flex;flex-direction:column;gap:6px">
+        <button class="report-option" onclick="selectReportOption(this,'Suspicious transaction I did not make')">💳 Suspicious transaction I did not make</button>
+        <button class="report-option" onclick="selectReportOption(this,'Account compromise or hacking attempt')">🔓 Account compromise or hacking attempt</button>
+        <button class="report-option" onclick="selectReportOption(this,'Identity theft or misuse of my details')">🪪 Identity theft or misuse of my details</button>
+        <button class="report-option" onclick="selectReportOption(this,'Technical error or incorrect charge')">⚙️ Technical error or incorrect charge</button>
+        <button class="report-option" onclick="selectReportOption(this,'Privacy concern or data misuse')">🔒 Privacy concern or data misuse</button>
+        <button class="report-option" onclick="selectReportOption(this,'Other')">✏️ Other issue</button>
+      </div>
+      <div class="err" id="report-type-e">Please select an issue type.</div>
+    </div>
+
+    <!-- Details form — shown after type selected -->
+    <div id="report-detail-wrap" style="display:none">
+      <div style="height:1px;background:var(--bd);margin:14px 0"></div>
+
+      <!-- Date of incident -->
+      <div class="form-group">
+        <label class="lbl">📅 Date of Incident</label>
+        <input class="inp" id="report-date" type="date" max="">
+        <div class="err" id="report-date-e">Please select the date this happened.</div>
+      </div>
+
+      <!-- Time of incident -->
+      <div class="form-group">
+        <label class="lbl">🕐 Approximate Time</label>
+        <select class="inp" id="report-time">
+          <option value="">— Select time range —</option>
+          <option>12:00 AM – 3:00 AM</option>
+          <option>3:00 AM – 6:00 AM</option>
+          <option>6:00 AM – 9:00 AM</option>
+          <option>9:00 AM – 12:00 PM</option>
+          <option>12:00 PM – 3:00 PM</option>
+          <option>3:00 PM – 6:00 PM</option>
+          <option>6:00 PM – 9:00 PM</option>
+          <option>9:00 PM – 12:00 AM</option>
+          <option>I'm not sure</option>
+        </select>
+      </div>
+
+      <!-- Card number involved -->
+      <div class="form-group">
+        <label class="lbl">💳 Card Number Involved (last 4 digits)</label>
+        <input class="inp" id="report-card" type="text" placeholder="e.g. 4321" maxlength="4" pattern="[0-9]{4}">
+        <div style="font-size:.72rem;color:var(--mt);margin-top:4px">Only the last 4 digits — never share your full card number.</div>
+        <div class="err" id="report-card-e">Enter the last 4 digits of the card.</div>
+      </div>
+
+      <!-- Amount involved -->
+      <div class="form-group">
+        <label class="lbl">₹ Amount Involved (if any)</label>
+        <input class="inp" id="report-amount" type="number" placeholder="e.g. 2500" min="0">
+      </div>
+
+      <!-- Merchant / platform -->
+      <div class="form-group">
+        <label class="lbl">🏪 Merchant or Platform Name</label>
+        <input class="inp" id="report-merchant" placeholder="e.g. Amazon, Paytm, unknown">
+      </div>
+
+      <!-- Description -->
+      <div class="form-group">
+        <label class="lbl">📝 Describe What Happened</label>
+        <textarea class="inp" id="report-desc" rows="3" placeholder="Please describe the issue in detail — what you noticed, what was unexpected, and any other context that may help us investigate…" style="resize:vertical;min-height:80px;font-family:'DM Sans',sans-serif;font-size:.86rem"></textarea>
+        <div class="err" id="report-desc-e">Please describe the issue.</div>
+      </div>
+
+      <!-- Have you already contacted bank -->
+      <div class="form-group">
+        <label class="lbl">🏦 Have You Contacted Your Bank?</label>
+        <select class="inp" id="report-bank">
+          <option value="">— Select —</option>
+          <option>Yes, I've already filed a complaint</option>
+          <option>No, I haven't yet</option>
+          <option>I'm not sure who to contact</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-full" id="report-submit-btn"
+        onclick="submitReport()"
+        style="flex:1;justify-content:center;background:linear-gradient(135deg,var(--wn),#f97316);color:#fff;border:none;box-shadow:0 3px 14px rgba(251,191,36,.25);opacity:.45;pointer-events:none">
+        Submit Report →
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-report')" style="flex-shrink:0">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ LOGIN / SIGNUP NOTIFICATION MODAL ═══ -->
+<div class="modal-overlay" id="modal-login-notif">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:44px;margin-bottom:12px" id="ln-icon">🔔</div>
+    <div class="modal-title" style="font-size:1.1rem;margin-bottom:6px" id="ln-title">Sign-In Alert Sent</div>
+    <p style="font-size:.82rem;color:var(--mt);line-height:1.7;margin-bottom:20px" id="ln-sub">Security alerts dispatched.</p>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+      <!-- Email row -->
+      <div id="ln-email-row" style="display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:12px 14px;text-align:left">
+        <div style="font-size:22px;flex-shrink:0">📧</div>
+        <div style="flex:1">
+          <div style="font-size:.78rem;font-weight:600;color:var(--tx)" id="ln-email-to">—</div>
+          <div style="font-size:.7rem;color:var(--mt);margin-top:2px" id="ln-email-msg">—</div>
+        </div>
+        <span class="badge badge-green" id="ln-email-badge">✓ Queued</span>
+      </div>
+      <!-- SMS row -->
+      <div id="ln-phone-row" style="display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--bd);border-radius:11px;padding:12px 14px;text-align:left">
+        <div style="font-size:22px;flex-shrink:0">📱</div>
+        <div style="flex:1">
+          <div style="font-size:.78rem;font-weight:600;color:var(--tx)" id="ln-phone-to">—</div>
+          <div style="font-size:.7rem;color:var(--mt);margin-top:2px" id="ln-phone-msg">—</div>
+        </div>
+        <span class="badge badge-blue" id="ln-phone-badge">📱 Queued</span>
+      </div>
+      <!-- No alerts note -->
+      <div id="ln-none-note" style="display:none;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:11px 14px;text-align:left;font-size:.78rem;color:var(--mt)">
+        🔕 Alerts are turned off. You can change this in your profile settings.
+      </div>
+    </div>
+
+    <div style="background:rgba(52,211,153,0.07);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:10px 14px;font-size:.76rem;color:var(--mt);line-height:1.6;margin-bottom:18px">
+      ⚠️ If this wasn't you, immediately lock your card from Settings and contact support.
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="document.getElementById('modal-login-notif').classList.remove('open');enterDash()">Continue to Dashboard →</button>
+  </div>
+</div>
+
+<!-- ═══ REPORT SUBMITTED NOTIFICATION MODAL ═══ -->
+<div class="modal-overlay" id="modal-report-notif">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:44px;margin-bottom:12px">📋</div>
+    <div class="modal-title" style="font-size:1.1rem;margin-bottom:6px">Report Submitted</div>
+    <p style="font-size:.82rem;color:var(--mt);line-height:1.7;margin-bottom:18px">Your report has been received. Our security team will review it within <strong style="color:var(--tx)">24 hours</strong>.</p>
+
+    <!-- Report summary card -->
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:12px;padding:14px;text-align:left;margin-bottom:16px">
+      <div style="font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mt);margin-bottom:10px">Report Summary</div>
+      <div id="rn-summary" style="font-size:.81rem;line-height:1.8;color:var(--tx)"></div>
+    </div>
+
+    <!-- Alerts sent -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <div id="rn-email-row" style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;text-align:left">
+        <span style="font-size:18px">📧</span>
+        <div style="flex:1;font-size:.75rem;color:var(--mt)" id="rn-email-line">Confirmation queued to your email</div>
+        <span class="badge badge-green">✓ Queued</span>
+      </div>
+      <div id="rn-phone-row" style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:10px 13px;text-align:left">
+        <span style="font-size:18px">📱</span>
+        <div style="flex:1;font-size:.75rem;color:var(--mt)" id="rn-phone-line">SMS queued to your registered phone</div>
+        <span class="badge badge-green">✓ Queued</span>
+      </div>
+      <div id="rn-none-note" style="display:none;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:10px 13px;font-size:.76rem;color:var(--mt)">
+        🔕 Alerts are turned off. Update in your profile settings.
+      </div>
+    </div>
+
+    <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:10px;padding:10px 14px;font-size:.76rem;color:var(--mt);line-height:1.6;margin-bottom:18px">
+      🔍 Our team is checking it. You will be notified at your email once resolved.
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="closeModal('modal-report-notif')">Got It ✓</button>
+  </div>
+</div>
+
+<!-- ═══ FRAUD BLOCK REASON MODAL (in-transaction) ═══ -->
+<div class="modal-overlay" id="modal-fraud-block">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">🚫 Block This Transaction</span>
+      <button class="modal-close" onclick="closeModal('modal-fraud-block')">✕</button>
+    </div>
+
+    <!-- No money deducted banner -->
+    <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:10px;padding:11px 14px;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">🛡️</span>
+      <div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--gn)">Payment is on hold — no money deducted</div>
+        <div style="font-size:.72rem;color:var(--mt);margin-top:2px">Your account will not be charged while this is under review.</div>
+      </div>
+    </div>
+
+    <p style="font-size:.82rem;color:var(--mt);margin-bottom:14px">Please tell us why you're blocking this transaction. This helps our team investigate faster.</p>
+
+    <div id="fraud-block-reasons" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'I did not make this transaction')">💳 I did not make this transaction</button>
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'The amount is incorrect or higher than expected')">₹ Amount is incorrect or too high</button>
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'I do not recognise this merchant')">🏪 I don't recognise this merchant</button>
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'My card may have been compromised')">🔓 My card may be compromised</button>
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'Duplicate or repeated charge')">🔁 Duplicate or repeated charge</button>
+      <button class="reason-btn" onclick="selectFraudBlockReason(this,'other')">✏️ Other reason…</button>
+    </div>
+    <div id="fraud-block-other-wrap" style="display:none;margin-bottom:10px">
+      <label class="lbl">Describe the reason</label>
+      <input class="inp" id="fraud-block-other-input" placeholder="Tell us what happened…">
+      <div class="err" id="fraud-block-other-e">Please describe the reason.</div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <button class="btn btn-danger" style="flex:1;justify-content:center" onclick="confirmFraudBlock()">Confirm Block</button>
+      <button class="btn btn-ghost" onclick="closeModal('modal-fraud-block')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FRAUD BLOCKED CONFIRMATION MODAL ═══ -->
+<div class="modal-overlay" id="modal-fraud-blocked-confirm">
+  <div class="modal-box" style="text-align:center">
+    <div style="font-size:44px;margin-bottom:12px">🚫</div>
+    <div class="modal-title" style="font-size:1.1rem;margin-bottom:6px">Transaction Blocked</div>
+    <p style="font-size:.82rem;color:var(--mt);margin-bottom:16px" id="fbc-merchant-text">This transaction has been blocked.</p>
+
+    <div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.25);border-radius:11px;padding:13px 16px;margin-bottom:16px;text-align:left">
+      <div style="font-size:.78rem;font-weight:700;color:var(--gn);margin-bottom:4px">✅ No money has been deducted</div>
+      <div style="font-size:.74rem;color:var(--mt);line-height:1.6">The payment was stopped before processing. Your balance is safe.</div>
+    </div>
+
+    <div style="background:rgba(56,189,248,0.07);border:1px solid rgba(56,189,248,0.2);border-radius:11px;padding:13px 16px;margin-bottom:16px;text-align:left">
+      <div style="font-size:.78rem;font-weight:700;color:var(--ac);margin-bottom:4px">🔍 Our team is reviewing this</div>
+      <div style="font-size:.74rem;color:var(--mt);line-height:1.6" id="fbc-reason-text">We've recorded your reason and our security team will investigate within 24 hours. You'll be notified at your email.</div>
+    </div>
+
+    <!-- Alerts sent -->
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+      <div id="fbc-email-row" style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;text-align:left">
+        <span>📧</span>
+        <div style="flex:1;font-size:.74rem;color:var(--mt)" id="fbc-email-line">Alert queued to your email</div>
+        <span class="badge badge-green">✓ Queued</span>
+      </div>
+      <div id="fbc-phone-row" style="display:flex;align-items:center;gap:10px;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:9px 13px;text-align:left">
+        <span>📱</span>
+        <div style="flex:1;font-size:.74rem;color:var(--mt)" id="fbc-phone-line">SMS alert queued to your phone</div>
+        <span class="badge badge-green">✓ Queued</span>
+      </div>
+      <div id="fbc-none-note" style="display:none;background:rgba(251,191,36,0.07);border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:9px 13px;font-size:.74rem;color:var(--mt)">
+        🔕 Alerts are off. You can change this in your profile.
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full" onclick="closeModal('modal-fraud-blocked-confirm');refreshFraud();refreshDash();">Done</button>
+  </div>
+</div>
+
+<!-- ═══ MONTHLY CHART MODAL ═══ -->
+<div class="modal-overlay" id="modal-monthly-chart">
+  <div class="modal-box wide" style="max-width:600px">
+    <div class="modal-head">
+      <span class="modal-title">📈 Monthly Spending</span>
+      <button class="modal-close" onclick="closeModal('modal-monthly-chart')">✕</button>
+    </div>
+    <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap" id="chart-year-btns"></div>
+    <canvas id="monthly-chart-canvas" height="240" style="width:100%;display:block"></canvas>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px" id="chart-stats"></div>
+    <p style="font-size:.72rem;color:var(--mt);margin-top:12px;text-align:center">Only non-blocked transactions are counted.</p>
+  </div>
+</div>
+
+<!-- ═══ EMAILJS SETUP WIZARD ═══ -->
+<div class="modal-overlay" id="modal-emailjs-setup">
+  <div class="modal-box" style="max-width:480px">
+    <div class="modal-head">
+      <span class="modal-title">✉️ Connect Email Alerts</span>
+      <button class="modal-close" onclick="closeModal('modal-emailjs-setup')">✕</button>
+    </div>
+
+    <!-- Step indicator -->
+    <div style="display:flex;gap:0;margin-bottom:22px;border-radius:9px;overflow:hidden;border:1px solid var(--bd)">
+      <div id="ejs-step-1-tab" style="flex:1;padding:8px;text-align:center;font-size:.74rem;font-weight:600;background:rgba(56,189,248,0.12);color:var(--ac);border-right:1px solid var(--bd)">1 · Get Keys</div>
+      <div id="ejs-step-2-tab" style="flex:1;padding:8px;text-align:center;font-size:.74rem;font-weight:600;color:var(--mt)">2 · Paste Keys</div>
+      <div id="ejs-step-3-tab" style="flex:1;padding:8px;text-align:center;font-size:.74rem;font-weight:600;color:var(--mt)">3 · Test</div>
+    </div>
+
+    <!-- Step 1 -->
+    <div id="ejs-step-1">
+      <p style="font-size:.83rem;color:var(--mt);line-height:1.7;margin-bottom:16px">EmailJS lets this app send real emails <strong style="color:var(--tx)">directly from the browser</strong> — no server needed. Free plan gives 200 emails/month.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start">
+          <div style="background:rgba(56,189,248,0.15);color:var(--ac);font-weight:800;font-family:'Syne',sans-serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0">1</div>
+          <div style="font-size:.81rem;line-height:1.6">Go to <a href="https://www.emailjs.com" target="_blank" style="color:var(--ac)">emailjs.com</a> → sign up free → <strong>Add New Service</strong> → connect your Gmail or Outlook → copy the <strong style="color:var(--tx)">Service ID</strong></div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start">
+          <div style="background:rgba(56,189,248,0.15);color:var(--ac);font-weight:800;font-family:'Syne',sans-serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0">2</div>
+          <div style="font-size:.81rem;line-height:1.6"><strong>Email Templates</strong> → Create Template → set Subject to <code style="background:var(--s3);padding:1px 5px;border-radius:4px">{{subject}}</code> and Content to <code style="background:var(--s3);padding:1px 5px;border-radius:4px">{{message}}</code> → add <code style="background:var(--s3);padding:1px 5px;border-radius:4px">{{to_email}}</code> in the To field → copy the <strong style="color:var(--tx)">Template ID</strong></div>
+        </div>
+        <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start">
+          <div style="background:rgba(56,189,248,0.15);color:var(--ac);font-weight:800;font-family:'Syne',sans-serif;width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0">3</div>
+          <div style="font-size:.81rem;line-height:1.6"><strong>Account</strong> → <strong>API Keys</strong> → copy your <strong style="color:var(--tx)">Public Key</strong></div>
+        </div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="ejsGo(2)">I have my keys → Next</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="ejs-step-2" style="display:none">
+      <p style="font-size:.82rem;color:var(--mt);margin-bottom:14px;line-height:1.6">Paste your 3 keys below. They are saved locally in your browser — never sent anywhere.</p>
+      <div class="form-group">
+        <label class="lbl">Public Key</label>
+        <input class="inp" id="ejs-public-key" placeholder="e.g. abc123XYZ_AbCdEfG" autocomplete="off">
+        <div class="err" id="ejs-pk-e">Public Key is required.</div>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Service ID</label>
+        <input class="inp" id="ejs-service-id" placeholder="e.g. service_xxxxxxx" autocomplete="off">
+        <div class="err" id="ejs-si-e">Service ID is required.</div>
+      </div>
+      <div class="form-group">
+        <label class="lbl">Template ID</label>
+        <input class="inp" id="ejs-template-id" placeholder="e.g. template_xxxxxxx" autocomplete="off">
+        <div class="err" id="ejs-ti-e">Template ID is required.</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:6px">
+        <button class="btn btn-ghost" onclick="ejsGo(1)">← Back</button>
+        <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="ejsSaveKeys()">Save & Test →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Test result -->
+    <div id="ejs-step-3" style="display:none;text-align:center">
+      <div style="font-size:40px;margin-bottom:12px" id="ejs-test-icon">📨</div>
+      <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;margin-bottom:8px" id="ejs-test-title">Sending test email…</div>
+      <p style="font-size:.82rem;color:var(--mt);line-height:1.7;margin-bottom:18px" id="ejs-test-msg">Sending a test to your registered email address.</p>
+      <button class="btn btn-primary btn-full" id="ejs-done-btn" style="display:none" onclick="closeModal('modal-emailjs-setup');document.getElementById('notif-setup-banner').style.display='none'">Done ✓</button>
+      <button class="btn btn-ghost btn-full" id="ejs-retry-btn" style="display:none;margin-top:8px" onclick="ejsGo(2)">← Fix Keys</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   ✉️  EMAILJS + SMS CONFIGURATION
+   ─────────────────────────────────────────────────────
+   EMAIL SETUP (free, 200/month, no backend needed):
+   1. Sign up at https://www.emailjs.com
+   2. Add Email Service (Gmail/Outlook) → copy Service ID
+   3. Create Template → add these 4 variables:
+        {{to_email}}  {{to_name}}  {{subject}}  {{message}}
+      Copy the Template ID
+   4. Account → API Keys → copy Public Key
+   Paste all 3 below, save the file — emails will work.
+
+   SMS SETUP (Fast2SMS — India, free tier available):
+   1. Sign up at https://www.fast2sms.com
+   2. Dashboard → Dev API → copy your API key
+   Paste it below — SMS will work.
+═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   ✉️  EMAILJS CONFIGURATION
+   Keys are saved in localStorage so you never need to
+   re-enter them. Use the in-app setup wizard (yellow
+   banner on dashboard) to paste your keys — no file
+   editing needed.
+   
+   Or paste directly here to pre-fill:
+═══════════════════════════════════════════════════════ */
+const EMAILJS_DEFAULTS = {
+  publicKey:  '',   // ← optional: paste Public Key here
+  serviceId:  '',   // ← optional: paste Service ID here
+  templateId: ''    // ← optional: paste Template ID here
+};
+
+// Load keys from localStorage (in-app wizard), fall back to hardcoded defaults above
+function loadEmailJSKeys() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('qsc_emailjs') || '{}');
+    return {
+      publicKey:  saved.publicKey  || EMAILJS_DEFAULTS.publicKey  || '',
+      serviceId:  saved.serviceId  || EMAILJS_DEFAULTS.serviceId  || '',
+      templateId: saved.templateId || EMAILJS_DEFAULTS.templateId || ''
+    };
+  } catch(e) { return EMAILJS_DEFAULTS; }
+}
+
+function saveEmailJSKeys(keys) {
+  localStorage.setItem('qsc_emailjs', JSON.stringify(keys));
+}
+
+let _ejsKeys = loadEmailJSKeys();
+let _emailjsReady = !!(
+  _ejsKeys.publicKey && _ejsKeys.serviceId && _ejsKeys.templateId &&
+  _ejsKeys.publicKey  !== 'YOUR_PUBLIC_KEY' &&
+  _ejsKeys.serviceId  !== 'YOUR_SERVICE_ID' &&
+  _ejsKeys.templateId !== 'YOUR_TEMPLATE_ID'
+);
+const _smsReady = false; // SMS via backend — not wired in this version
+
+function initEmailJS() {
+  _ejsKeys = loadEmailJSKeys();
+  _emailjsReady = !!(
+    _ejsKeys.publicKey && _ejsKeys.serviceId && _ejsKeys.templateId &&
+    _ejsKeys.publicKey  !== 'YOUR_PUBLIC_KEY'
+  );
+  if (_emailjsReady) {
+    try { emailjs.init({ publicKey: _ejsKeys.publicKey }); } catch(e) {}
+  }
+}
+initEmailJS();
+
+/* ═══════════════════════════════════════════════════════
+   LOCALSTORAGE DATABASE
+   Everything saved here survives: tab close, browser
+   restart, computer restart — permanently until cleared.
+═══════════════════════════════════════════════════════ */
+const DB_KEY = 'qsc_v5';
+
+function dbLoad() {
+  try { const r = localStorage.getItem(DB_KEY); if (r) return JSON.parse(r); } catch(e) {}
+  return { users: [], transactions: [], attempts: {}, session: null };
+}
+function dbSave() {
+  try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch(e) {}
+}
+
+let DB = dbLoad();
+if (!DB.attempts) DB.attempts = {};
+
+// Current session state — always cleared on page load (banking re-login behaviour)
+// DB.session persists account data but login is always required fresh
+let S = { user: null, txs: [] };
+// Note: We intentionally do NOT auto-restore session on page load.
+// Users must sign in each time they open the app.
+
+/* ═══════════════════════════════════════════════════════
+   THEME
+═══════════════════════════════════════════════════════ */
+let theme = localStorage.getItem('qsc_theme') || 'dark';
+
+function applyTheme(t) {
+  theme = t;
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('qsc_theme', t);
+  const dark = t === 'dark';
+  const icon = dark ? '🌙' : '☀️';
+  ['auth-th','dash-th','tx-th','fraud-th','set-th'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = icon;
+  });
+  const chk = document.getElementById('th-check'); if (chk) chk.checked = dark;
+  const lbl = document.getElementById('th-label'); if (lbl) lbl.textContent = dark ? 'Dark Mode' : 'Light Mode';
+  const ico = document.getElementById('th-icon');  if (ico) ico.textContent = icon;
+}
+function toggleTheme() { applyTheme(theme === 'dark' ? 'light' : 'dark'); }
+
+/* ═══════════════════════════════════════════════════════
+   LOCKOUT  (3 attempts → 24h lock)
+═══════════════════════════════════════════════════════ */
+const MAX_TRIES = 3;
+const LOCK_DURATION = 24 * 60 * 60 * 1000;
+
+function isLocked(email) {
+  const r = DB.attempts[email];
+  if (!r || !r.lockedUntil) return false;
+  if (Date.now() < r.lockedUntil) return true;
+  DB.attempts[email] = { count: 0, lockedUntil: null }; dbSave(); return false;
+}
+function lockRemaining(email) { return Math.max(0, (DB.attempts[email]?.lockedUntil || 0) - Date.now()); }
+function formatTime(ms) { const h = Math.floor(ms/3600000), m = Math.floor((ms%3600000)/60000); return h > 0 ? `${h}h ${m}m` : `${m}m`; }
+function recordFail(email) {
+  if (!DB.attempts[email]) DB.attempts[email] = { count: 0, lockedUntil: null };
+  DB.attempts[email].count++;
+  if (DB.attempts[email].count >= MAX_TRIES) DB.attempts[email].lockedUntil = Date.now() + LOCK_DURATION;
+  dbSave(); return DB.attempts[email].count;
+}
+function clearFails(email) { DB.attempts[email] = { count: 0, lockedUntil: null }; dbSave(); }
+
+const SQ_MAP = {
+  pet: 'What was the name of your first pet?',
+  school: 'What primary school did you attend?',
+  city: 'What city were you born in?',
+  mother: "What is your mother's maiden name?",
+  street: 'What street did you grow up on?'
+};
+
+/* ═══════════════════════════════════════════════════════
+   AUTH TABS
+═══════════════════════════════════════════════════════ */
+function showTab(tab) {
+  const panels = { login: 'panel-login', signup: 'panel-signup', forgot: 'panel-forgot' };
+  Object.entries(panels).forEach(([k, id]) => {
+    document.getElementById(id).style.display = k === tab ? '' : 'none';
+  });
+  ['tab-li','tab-su'].forEach(id => {
+    const el = document.getElementById(id); if (!el) return;
+    el.classList.toggle('active', (id === 'tab-li' && tab === 'login') || (id === 'tab-su' && tab === 'signup'));
+  });
+  const tabRow = document.querySelector('.tab-row');
+  if (tabRow) { tabRow.style.opacity = tab === 'forgot' ? '0.4' : '1'; tabRow.style.pointerEvents = tab === 'forgot' ? 'none' : ''; }
+  if (tab === 'forgot') resetForgot();
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN
+═══════════════════════════════════════════════════════ */
+function doLogin() {
+  const email = (document.getElementById('li-email').value || '').trim().toLowerCase();
+  const card  = (document.getElementById('li-card').value  || '').trim();
+  const pin   = document.getElementById('li-pin').value;
+
+  const errEl   = document.getElementById('li-err');
+  const lockBox = document.getElementById('lock-box');
+  const lockMsg = document.getElementById('lock-msg');
+  const btn     = document.getElementById('li-btn');
+
+  errEl.classList.remove('on');
+
+  // Check lockout
+  if (isLocked(email)) {
+    lockBox.classList.add('on');
+    lockMsg.textContent = `Account locked. Try again in ${formatTime(lockRemaining(email))}.`;
+    btn.disabled = true; return;
+  }
+
+  const user = DB.users.find(u =>
+    u.email === email &&
+    u.card === card.replace(/\s/g,'') &&
+    u.pin === pin
+  );
+
+  if (!user) {
+    const tries = recordFail(email);
+    const userExists = !!DB.users.find(u => u.email === email);
+
+    if (isLocked(email)) {
+      lockBox.classList.add('on');
+      lockMsg.textContent = `Locked for 24 hours. Try again in ${formatTime(lockRemaining(email))}.`;
+      btn.disabled = true;
+      toast('🔒 Account locked — 3 failed attempts', 'd');
+    } else {
+      errEl.textContent = userExists
+        ? `Incorrect credentials. ${MAX_TRIES - tries} attempt${MAX_TRIES - tries !== 1 ? 's' : ''} remaining.`
+        : 'Invalid credentials. Please try again.';
+      errEl.classList.add('on');
+      if (userExists && tries >= 1) {
+        document.getElementById('attempt-row').style.display = 'flex';
+        for (let i = 1; i <= 3; i++) document.getElementById('dot'+i).classList.toggle('hit', i <= tries);
+      }
+    }
+    return;
+  }
+
+  // SUCCESS
+  clearFails(email);
+  document.getElementById('attempt-row').style.display = 'none';
+  for (let i = 1; i <= 3; i++) document.getElementById('dot'+i).classList.remove('hit');
+  errEl.classList.remove('on');
+  lockBox.classList.remove('on');
+  btn.disabled = false;
+
+  S.user = user;
+  S.txs  = DB.transactions.filter(t => t.ue === user.email);
+  DB.session = user.email; dbSave();
+  showLoginNotification(user, 'login');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SIGNUP
+═══════════════════════════════════════════════════════ */
+function doSignup() {
+  const name  = (document.getElementById('su-name').value  || '').trim();
+  const email = (document.getElementById('su-email').value || '').trim().toLowerCase();
+  const phone = (document.getElementById('su-phone').value || '').trim();
+  const card  = (document.getElementById('su-card').value  || '').trim();
+  const pin   = document.getElementById('su-pin').value;
+  const secq  = document.getElementById('su-secq').value;
+  const seca  = (document.getElementById('su-seca').value  || '').trim();
+
+  let ok = true;
+  const setErr = (id, cond, msg) => {
+    const el = document.getElementById(id);
+    if (msg && cond) el.textContent = msg;
+    el.classList.toggle('on', cond);
+    if (cond) ok = false;
+  };
+
+  const phoneDigits = phone.replace(/\D/g,'');
+  setErr('su-name-e',  !name);
+  setErr('su-email-e', !email || !email.includes('@'));
+  setErr('su-phone-e', phoneDigits.length < 10);
+  setErr('su-card-e',  card.replace(/\s/g,'').length < 12);
+  setErr('su-pin-e',   pin.length < 4);
+  setErr('su-secq-e',  !secq);
+  setErr('su-seca-e',  !seca);
+  if (!ok) return;
+
+  if (DB.users.find(u => u.email === email)) {
+    setErr('su-email-e', true, 'Email already registered. Try signing in.');
+    return;
+  }
+
+  const user = {
+    id: Date.now(), name, email, phone,
+    card: card.replace(/\s/g,''), pin,
+    secq, seca: seca.toLowerCase(),
+    photo: null,
+    notifPref: document.getElementById('su-notif-pref').value || 'both',
+    createdAt: new Date().toISOString()
+  };
+
+  DB.users.push(user);
+  DB.session = email;
+  dbSave();
+
+  S.user = user; S.txs = [];
+  showLoginNotification(user, 'signup');
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGOUT
+═══════════════════════════════════════════════════════ */
+function doLogout() {
+  DB.session = null; dbSave();
+  S.user = null; S.txs = [];
+  document.getElementById('li-btn').disabled = false;
+  document.getElementById('attempt-row').style.display = 'none';
+  document.getElementById('lock-box').classList.remove('on');
+  for (let i = 1; i <= 3; i++) document.getElementById('dot'+i).classList.remove('hit');
+  showPage('auth');
+  showTab('login');
+  toast('👋 Signed out.', 'b');
+}
+
+/* ═══════════════════════════════════════════════════════
+   FORGOT PASSWORD FLOW
+═══════════════════════════════════════════════════════ */
+let fpEmail = '';
+
+function resetForgot() {
+  fpEmail = '';
+  ['fps1','fps2','fps3','fps4'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('fps1').classList.add('on');
+  setFpDots(1);
+  ['fp-email','fp-ans','fp-newpin','fp-conpin'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  ['fp-email-e','fp-ans-e','fp-newpin-e','fp-conpin-e'].forEach(id => document.getElementById(id)?.classList.remove('on'));
+}
+
+function setFpDots(active) {
+  [1,2,3].forEach(i => {
+    const d = document.getElementById('sd'+i);
+    const l = document.getElementById('sl'+i);
+    if (!d) return;
+    d.classList.remove('active','done');
+    if (i < active)      { d.classList.add('done'); if (l) l.classList.add('done'); }
+    else if (i === active) d.classList.add('active');
+    else if (l) l.classList.remove('done');
+  });
+}
+
+function fpGo(n) {
+  ['fps1','fps2','fps3','fps4'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('fps'+n).classList.add('on');
+  setFpDots(n);
+}
+
+function fpStep1() {
+  const email = (document.getElementById('fp-email').value || '').trim().toLowerCase();
+  const errEl = document.getElementById('fp-email-e');
+  const user  = DB.users.find(u => u.email === email);
+  if (!user) { errEl.textContent = 'No account found with that email.'; errEl.classList.add('on'); return; }
+  errEl.classList.remove('on');
+  fpEmail = email;
+  document.getElementById('fp-email-show').textContent = email;
+  fpGo(2);
+}
+
+function fpStep2() {
+  const user = DB.users.find(u => u.email === fpEmail);
+  if (!user) return;
+  document.getElementById('fp-q-lbl').textContent = SQ_MAP[user.secq] || 'Security Question';
+  fpGo(3);
+}
+
+function fpStep3() {
+  const ans    = (document.getElementById('fp-ans').value    || '').trim().toLowerCase();
+  const newpin = document.getElementById('fp-newpin').value;
+  const conpin = document.getElementById('fp-conpin').value;
+  const user   = DB.users.find(u => u.email === fpEmail);
+
+  let ok = true;
+  const setErr = (id, cond, msg) => {
+    const el = document.getElementById(id);
+    if (msg) el.textContent = msg;
+    el.classList.toggle('on', cond);
+    if (cond) ok = false;
+  };
+
+  setErr('fp-ans-e',    !ans || ans !== user.seca, 'Incorrect answer. Try again.');
+  setErr('fp-newpin-e', newpin.length < 4,          'PIN must be at least 4 digits.');
+  setErr('fp-conpin-e', newpin !== conpin,           'PINs do not match.');
+  if (!ok) return;
+
+  user.pin = newpin;
+  clearFails(fpEmail);
+  dbSave();
+
+  toast('🔐 PIN reset successfully!', 'g');
+  [1,2,3].forEach(i => {
+    const d = document.getElementById('sd'+i); if (d) { d.classList.remove('active'); d.classList.add('done'); }
+    const l = document.getElementById('sl'+i); if (l) l.classList.add('done');
+  });
+  fpGo(4);
+}
+
+/* ═══════════════════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════════════════ */
+function showPage(name) {
+  ['auth','dash','tx','fraud','settings'].forEach(p => {
+    const el = document.getElementById('pg-' + p);
+    el.classList.remove('show','showflex');
+    el.style.display = 'none';
+  });
+  const target = document.getElementById('pg-' + name);
+  if (name === 'auth') { target.style.display = ''; target.classList.add('showflex'); }
+  else                 { target.style.display = ''; target.classList.add('show'); }
+}
+
+function goTo(page) {
+  showPage(page);
+  if (page === 'dash')     refreshDash();
+  if (page === 'tx')       refreshTx();
+  if (page === 'fraud')    refreshFraud();
+  if (page === 'settings') refreshStorageInfo();
+  window.scrollTo(0, 0);
+}
+
+function enterDash() {
+  const first = S.user.name.split(' ')[0];
+  const h     = new Date().getHours();
+  const greet = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('dash-greet').textContent  = `${greet}, ${first} 👋`;
+  document.getElementById('dash-name').textContent   = first;
+  if (S.user.photo) {
+    document.getElementById('dash-av').innerHTML = `<img src="${S.user.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`;
+  } else {
+    document.getElementById('dash-av').textContent = first[0].toUpperCase();
+  }
+  document.getElementById('cc-number').textContent = `•••• •••• •••• ${S.user.card.slice(-4)}`;
+  document.getElementById('cc-holder').textContent = S.user.name.toUpperCase();
+
+  // Show setup banner if notifications are wanted but keys not configured
+  const pref   = S.user.notifPref || 'both';
+  const banner = document.getElementById('notif-setup-banner');
+  const needsSetup = pref !== 'none' && (!_emailjsReady || !_smsReady);
+  banner.style.display = needsSetup ? 'flex' : 'none';
+
+  goTo('dash');
+}
+
+/* ═══════════════════════════════════════════════════════
+   ICONS MAP
+═══════════════════════════════════════════════════════ */
+const ICONS = {
+  '🛒 Shopping':      { bg: 'rgba(255,153,0,.12)',   i: '🛒' },
+  '🍔 Food':          { bg: 'rgba(239,68,68,.12)',   i: '🍔' },
+  '🚗 Transport':     { bg: 'rgba(56,189,248,.12)',  i: '🚗' },
+  '💊 Health':        { bg: 'rgba(52,211,153,.12)',  i: '💊' },
+  '🎮 Entertainment': { bg: 'rgba(129,140,248,.12)', i: '🎮' },
+  '❓ Other':         { bg: 'rgba(148,163,184,.12)', i: '❓' }
+};
+
+/* ═══════════════════════════════════════════════════════
+   ADD TRANSACTION
+═══════════════════════════════════════════════════════ */
+function openAdd() {
+  document.getElementById('modal-add').classList.add('open');
+  document.getElementById('add-merchant').value = '';
+  document.getElementById('add-amount').value   = '';
+  ['add-merr','add-aerr'].forEach(id => document.getElementById(id).classList.remove('on'));
+}
+
+function submitAdd() {
+  const merchant = document.getElementById('add-merchant').value.trim();
+  const amount   = parseFloat(document.getElementById('add-amount').value);
+  const category = document.getElementById('add-cat').value;
+  const status   = document.getElementById('add-status').value;
+
+  let ok = true;
+  if (!merchant) { document.getElementById('add-merr').classList.add('on'); ok = false; }
+  else             document.getElementById('add-merr').classList.remove('on');
+  if (!amount || amount <= 0) { document.getElementById('add-aerr').classList.add('on'); ok = false; }
+  else                          document.getElementById('add-aerr').classList.remove('on');
+  if (!ok) return;
+
+  const now = new Date();
+  const tl  = now.toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', hour12: true });
+  const tx  = { id: Date.now(), ue: S.user.email, merchant, amount, category, status, time: tl, createdAt: now.toISOString() };
+
+  DB.transactions.unshift(tx); dbSave();
+  S.txs.unshift(tx);
+  closeModal('modal-add');
+  refreshTx(); refreshDash();
+  toast(`${status === 'suspicious' ? '⚠️' : '✅'} Added: ${merchant} ₹${amount.toLocaleString('en-IN')}`, status === 'suspicious' ? 'w' : 'g');
+}
+
+/* ═══════════════════════════════════════════════════════
+   BLOCK / ALLOW
+═══════════════════════════════════════════════════════ */
+function blockTx(id) {
+  // Show reason modal before blocking — payment is held, not deducted
+  openFraudBlockModal(id);
+}
+
+function allowTx(id) {
+  const tx = S.txs.find(t => t.id === id); if (!tx) return;
+  tx.status = 'normal';
+  const dt = DB.transactions.find(t => t.id === id); if (dt) dt.status = 'normal';
+  dbSave(); refreshTx(); refreshDash(); refreshFraud();
+  toast(`✅ Allowed: ${tx.merchant} ₹${tx.amount.toLocaleString('en-IN')}`, 'g');
+}
+
+/* ═══════════════════════════════════════════════════════
+   TRANSACTION TABLE
+═══════════════════════════════════════════════════════ */
+let curFilter = 'all';
+
+function setFilter(f, btn) {
+  curFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable();
+}
+
+function buildTxRow(tx) {
+  const cat  = ICONS[tx.category] || ICONS['❓ Other'];
+  const badge = {
+    normal:     '<span class="badge badge-green">● Normal</span>',
+    suspicious: '<span class="badge badge-warn">⚠ Suspicious</span>',
+    blocked:    '<span class="badge badge-red">✕ Blocked</span>'
+  }[tx.status] || '';
+  const action = tx.status === 'suspicious'
+    ? `<button class="btn btn-danger btn-sm" onclick="blockTx(${tx.id})">Block</button>`
+    : tx.status === 'blocked'
+    ? `<span style="color:var(--mt);font-size:.74rem">Blocked</span>`
+    : `<span style="color:var(--mt);font-size:.74rem">—</span>`;
+  const rowClass = tx.status === 'suspicious' ? 'tx-table-row sus' : tx.status === 'blocked' ? 'tx-table-row blk' : 'tx-table-row';
+  const sub = (tx.cardholder ? ` · ${tx.cardholder}` : '') + (tx.location ? ` · ${tx.location}` : '');
+
+  return `<div class="${rowClass}">
+    <div class="tx-cell-info">
+      <div class="tx-icon" style="background:${cat.bg}">${cat.i}</div>
+      <div>
+        <div style="font-size:.86rem;font-weight:500">${tx.merchant}</div>
+        <div style="font-size:.71rem;color:var(--mt);margin-top:1px">${tx.time}${sub}</div>
+      </div>
+    </div>
+    ${badge}
+    <div class="tx-cell-r" style="font-family:'Syne',sans-serif;font-size:.86rem;font-weight:700;color:var(--dg)">−₹${tx.amount.toLocaleString('en-IN')}</div>
+    <div class="tx-cell-r">${action}</div>
+  </div>`;
+}
+
+function renderTable() {
+  const body = document.getElementById('tx-table-body');
+  let list   = S.txs;
+  if (curFilter !== 'all') list = list.filter(t => t.status === curFilter);
+  if (!list.length) {
+    body.innerHTML = `<div class="tx-table-empty">No ${curFilter === 'all' ? '' : curFilter + ' '}transactions yet</div>`;
+    return;
+  }
+  body.innerHTML = list.map(buildTxRow).join('');
+}
+
+function refreshTx() {
+  const all   = S.txs;
+  const total = all.reduce((s, t) => s + (t.status !== 'blocked' ? t.amount : 0), 0);
+  const sus   = all.filter(t => t.status === 'suspicious').length;
+  const blk   = all.filter(t => t.status === 'blocked').length;
+
+  document.getElementById('tx-subtitle').textContent = `${all.length} transaction${all.length !== 1 ? 's' : ''}`;
+  document.getElementById('tx-pills').innerHTML = `
+    <div class="pill"><span class="pl">Total</span>₹${total.toLocaleString('en-IN')}</div>
+    <div class="pill"><span class="pl">Normal</span>${all.filter(t => t.status === 'normal').length}</div>
+    <div class="pill"><span class="pl">Flagged</span><span style="color:${sus > 0 ? 'var(--wn)' : 'var(--mt)'}">${sus}</span></div>
+    <div class="pill"><span class="pl">Blocked</span><span style="color:${blk > 0 ? 'var(--dg)' : 'var(--mt)'}">${blk}</span></div>`;
+  renderTable();
+}
+
+/* ═══════════════════════════════════════════════════════
+   DASHBOARD REFRESH
+═══════════════════════════════════════════════════════ */
+function refreshDash() {
+  const txs   = S.txs;
+  const total = txs.reduce((s, t) => s + (t.status !== 'blocked' ? t.amount : 0), 0);
+  const norm  = txs.filter(t => t.status === 'normal').length;
+  const flag  = txs.filter(t => t.status === 'suspicious').length;
+
+  document.getElementById('stat-spent').textContent = `₹${total.toLocaleString('en-IN')}`;
+  document.getElementById('stat-count').textContent = `${txs.length} transaction${txs.length !== 1 ? 's' : ''}`;
+  document.getElementById('stat-normal').textContent  = norm;
+  document.getElementById('stat-flagged').textContent = flag;
+  document.getElementById('stat-flag-badge').innerHTML = flag > 0
+    ? '<span class="badge badge-warn">⚠ Needs Review</span>'
+    : '<span class="badge badge-green">● All Clear</span>';
+
+  const alertEl = document.getElementById('fraud-alert');
+  if (flag > 0) {
+    alertEl.style.display = 'flex';
+    document.getElementById('fraud-alert-text').textContent = `${flag} suspicious transaction${flag > 1 ? 's' : ''} detected`;
+  } else { alertEl.style.display = 'none'; }
+
+  const listEl = document.getElementById('dash-tx-list');
+  const recent = txs.slice(0, 4);
+  if (!recent.length) { listEl.innerHTML = '<div class="tx-empty">No transactions yet</div>'; return; }
+
+  listEl.innerHTML = recent.map(tx => {
+    const cat = ICONS[tx.category] || ICONS['❓ Other'];
+    const s   = tx.status === 'suspicious';
+    const b   = tx.status === 'blocked';
+    return `<div class="tx-row ${s?'sus':''} ${b?'blk':''}">
+      <div class="tx-row-left">
+        <div class="tx-icon" style="background:${s ? 'rgba(248,113,113,.15)' : cat.bg}">${s ? '⚠️' : cat.i}</div>
+        <div>
+          <div class="tx-name" style="color:${s?'var(--dg)':''}">${tx.merchant}${b ? ' <span style="color:var(--dg);font-size:.7rem">(Blocked)</span>' : ''}</div>
+          <div class="tx-meta">${tx.time}</div>
+        </div>
+      </div>
+      <span class="tx-amount">−₹${tx.amount.toLocaleString('en-IN')}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ═══════════════════════════════════════════════════════
+   FRAUD REFRESH
+═══════════════════════════════════════════════════════ */
+function refreshFraud() {
+  const sus   = S.txs.filter(t => t.status === 'suspicious');
+  const clear = document.getElementById('fraud-clear');
+  const wrap  = document.getElementById('fraud-content');
+
+  if (!sus.length) { clear.style.display = 'block'; wrap.innerHTML = ''; return; }
+  clear.style.display = 'none';
+
+  const tx   = sus[0];
+  const risk = Math.min(95, 70 + Math.floor(tx.amount / 1000));
+  const extra = (tx.cardholder ? `<div class="detail-box"><div class="detail-label">Cardholder</div><div class="detail-value">${tx.cardholder}</div></div>` : '')
+              + (tx.location   ? `<div class="detail-box"><div class="detail-label">Location</div><div class="detail-value">${tx.location}</div></div>` : '');
+
+  wrap.innerHTML = `
+    <div class="fraud-card-box">
+      <div class="fraud-icon-wrap"><div class="fraud-icon-bg">⚠️</div></div>
+      <div class="fraud-title">Suspicious Transaction</div>
+      <p class="fraud-sub">Unusual payment detected on your card. Please review and act.</p>
+      <div class="fraud-details">
+        <div class="detail-box"><div class="detail-label">Amount</div><div class="detail-value red">₹${tx.amount.toLocaleString('en-IN')}</div></div>
+        <div class="detail-box"><div class="detail-label">Merchant</div><div class="detail-value">${tx.merchant}</div></div>
+        <div class="detail-box"><div class="detail-label">Category</div><div class="detail-value">${tx.category}</div></div>
+        <div class="detail-box"><div class="detail-label">Time</div><div class="detail-value">${tx.time}</div></div>
+        ${extra}
+      </div>
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-label"><span>Risk Score</span><strong>${risk} / 100 — High Risk</strong></div>
+        <div class="risk-track"><div class="risk-fill" style="width:${risk}%"></div></div>
+      </div>
+      <div class="fraud-actions">
+        <button class="btn-block" onclick="blockTx(${tx.id});refreshFraud();refreshDash()">🚫 Block</button>
+        <button class="btn-allow" onclick="allowTx(${tx.id})">✓ Allow</button>
+      </div>
+      ${sus.length > 1 ? `<p style="color:var(--mt);font-size:.77rem;margin-top:13px">+${sus.length-1} more pending review</p>` : ''}
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CSV IMPORT  (handles credit_card_transactions.csv)
+═══════════════════════════════════════════════════════ */
+let parsedRows = [];
+
+function openImport() {
+  document.getElementById('modal-csv').classList.add('open');
+  document.getElementById('csv-filename').textContent = 'No file chosen';
+  document.getElementById('import-result').style.display = 'none';
+  document.getElementById('import-btn').disabled = true;
+  document.getElementById('import-btn').style.opacity = '0.4';
+  document.getElementById('csv-file-input').value = '';
+  parsedRows = [];
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('over');
+  const f = e.dataTransfer.files[0]; if (f) processCSVFile(f);
+}
+function handleCsvFile(input) { if (input.files[0]) processCSVFile(input.files[0]); }
+
+function processCSVFile(file) {
+  if (!file.name.toLowerCase().endsWith('.csv')) { showImportResult('❌ Please choose a .csv file.', false); return; }
+  document.getElementById('csv-filename').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result.replace(/^\uFEFF/, ''); // strip BOM
+    parsedRows = parseCSV(text);
+    if (!parsedRows.length) { showImportResult('❌ CSV is empty or could not be read.', false); return; }
+    const keys = Object.keys(parsedRows[0]);
+    const hasM = keys.some(k => ['merchant','store','payee','name','description'].includes(k));
+    const hasA = keys.some(k => ['amount','amt','price','sum','total','value'].includes(k));
+    if (!hasM || !hasA) {
+      showImportResult(`❌ Columns needed: merchant + amount (or amt).<br>Found: ${keys.slice(0,8).join(', ')}`, false);
+      return;
+    }
+    showImportResult(`✅ <strong>${parsedRows.length.toLocaleString()} rows</strong> ready to import.`, true);
+    document.getElementById('import-btn').disabled = false;
+    document.getElementById('import-btn').style.opacity = '1';
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (lines.length < 2) return [];
+  const parseRow = row => {
+    const result = []; let cur = '', inQ = false;
+    for (const ch of row) {
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (ch === ',' && !inQ) { result.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    result.push(cur.trim()); return result;
+  };
+  const headers = parseRow(lines[0]).map(h => h.toLowerCase().trim().replace(/\s+/g,'_'));
+  const rows = [];
+  for (let i = 1; i < lines.length; i++) {
+    const vals = parseRow(lines[i]);
+    if (vals.every(v => !v)) continue;
+    const obj = {}; headers.forEach((h, j) => obj[h] = vals[j] || '');
+    rows.push(obj);
+  }
+  return rows;
+}
+
+function getCol(row, keys) {
+  for (const k of keys) { if (row[k] !== undefined && row[k] !== '') return row[k]; }
+  return '';
+}
+
+function mapCategory(raw) {
+  const v = (raw || '').toLowerCase();
+  if (v.includes('grocery') || v.includes('shopping') || v.includes('misc') || v.includes('personal') || v.includes('home')) return '🛒 Shopping';
+  if (v.includes('food') || v.includes('dining')) return '🍔 Food';
+  if (v.includes('gas') || v.includes('transport') || v.includes('travel')) return '🚗 Transport';
+  if (v.includes('health') || v.includes('fitness') || v.includes('medical')) return '💊 Health';
+  if (v.includes('entertainment') || v.includes('kids')) return '🎮 Entertainment';
+  return '❓ Other';
+}
+
+function runImport() {
+  if (!parsedRows.length) return;
+  let imported = 0, skipped = 0;
+
+  parsedRows.forEach((row, i) => {
+    const merchant = getCol(row, ['merchant','store','payee','name','description']).replace(/^fraud_/i,'').trim();
+    const rawAmt   = getCol(row, ['amt','amount','price','sum','total','value']).replace(/[₹,\s]/g,'');
+    const amount   = parseFloat(rawAmt);
+    if (!merchant || isNaN(amount) || amount <= 0) { skipped++; return; }
+
+    const category = mapCategory(getCol(row, ['category','type','tag']));
+    const rawFraud = String(getCol(row, ['is_fraud','fraud','is_suspicious']) || '0').trim();
+    const status   = rawFraud === '1' || rawFraud.toLowerCase() === 'true' ? 'suspicious' : 'normal';
+
+    let createdAt = new Date().toISOString();
+    const rawDate = getCol(row, ['trans_date','date','transaction_date','created_at','timestamp']).trim();
+    if (rawDate) { const p = new Date(rawDate); if (!isNaN(p)) createdAt = p.toISOString(); }
+    else { const ut = getCol(row, ['unix_time']); if (ut) { const p = new Date(parseInt(ut)*1000); if (!isNaN(p)) createdAt = p.toISOString(); } }
+
+    const txDate = new Date(createdAt);
+    const tl = txDate.toLocaleString('en-IN', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:true });
+
+    const fn  = getCol(row, ['first','first_name']);
+    const ln  = getCol(row, ['last','last_name']);
+    const cty = getCol(row, ['city']);
+    const st  = getCol(row, ['state']);
+    const tn  = getCol(row, ['trans_num','transaction_id']);
+
+    let txid = Date.now() + i;
+    if (tn) { const n = parseInt(tn.replace(/\D/g,'').slice(0,13)); if (!isNaN(n) && n > 0) txid = n + i; }
+
+    const tx = {
+      id: txid, ue: S.user.email,
+      merchant, amount, category, status,
+      time: tl, createdAt,
+      cardholder: [fn, ln].filter(Boolean).join(' ') || undefined,
+      location:   [cty, st].filter(Boolean).join(', ') || undefined
+    };
+
+    DB.transactions.push(tx);
+    S.txs.push(tx);
+    imported++;
+  });
+
+  const sortFn = (a, b) => new Date(b.createdAt) - new Date(a.createdAt);
+  DB.transactions.sort(sortFn);
+  S.txs.sort(sortFn);
+  dbSave();
+
+  showImportResult(
+    `🎉 <strong>${imported.toLocaleString()} transactions imported!</strong>${skipped > 0 ? ` (${skipped} skipped)` : ''}<br>Fraud rows auto-marked as <span style="color:var(--dg)">⚠ suspicious</span>.`,
+    true
+  );
+  document.getElementById('import-btn').disabled = true;
+  document.getElementById('import-btn').style.opacity = '0.4';
+
+  refreshTx(); refreshDash(); refreshStorageInfo();
+  toast(`📥 Imported ${imported.toLocaleString()} transactions!`, 'g');
+  setTimeout(() => closeModal('modal-csv'), 2200);
+}
+
+function showImportResult(html, good) {
+  const el = document.getElementById('import-result');
+  el.style.display = 'block';
+  el.className = 'import-result ' + (good ? 'good' : 'bad');
+  el.innerHTML = html;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EXPORT CSV
+═══════════════════════════════════════════════════════ */
+function exportCSV() {
+  if (!S.txs.length) { toast('No transactions to export', 'w'); return; }
+  const rows = [['merchant','amount','category','status','time','cardholder','location','created_at']];
+  S.txs.forEach(t => rows.push([
+    `"${t.merchant}"`, t.amount, `"${t.category}"`, t.status,
+    `"${t.time || ''}"`, `"${t.cardholder || ''}"`, `"${t.location || ''}"`, t.createdAt
+  ]));
+  const blob = new Blob([rows.map(r => r.join(',')).join('\n')], { type: 'text/csv' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = `transactions_${S.user.email}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast('📤 Exported as CSV!', 'g');
+}
+
+/* ═══════════════════════════════════════════════════════
+   DB VIEWER
+═══════════════════════════════════════════════════════ */
+let activeDbTab = 'users';
+
+function openDB() {
+  document.getElementById('modal-db').classList.add('open');
+  dbTab('users');
+}
+
+function dbTab(tab) {
+  activeDbTab = tab;
+  ['users','txs','info'].forEach(t => {
+    document.getElementById('dbt-' + t).classList.toggle('active', t === tab);
+  });
+
+  const el = document.getElementById('db-content');
+
+  if (tab === 'users') {
+    const users = DB.users;
+    if (!users.length) { el.innerHTML = '<div class="data-empty">No accounts saved yet.</div>'; return; }
+    el.innerHTML = `
+      <div class="info-box green">✅ <strong>${users.length} account${users.length!==1?'s':''} saved.</strong> Your data persists after closing the tab, restarting the browser, or rebooting your computer.</div>
+      <table class="data-table">
+        <thead><tr><th>Name</th><th>Email</th><th>Card</th><th>PIN</th><th>Security Q</th><th>Created</th></tr></thead>
+        <tbody>${users.map(u => `
+          <tr>
+            <td title="${u.name}">${u.name}</td>
+            <td style="color:var(--ac)" title="${u.email}">${u.email}</td>
+            <td>****${u.card.slice(-4)}</td>
+            <td><span style="letter-spacing:.12em">••••</span></td>
+            <td style="color:var(--mt)">${(SQ_MAP[u.secq] || u.secq || '').split(' ').slice(0,3).join(' ')}…</td>
+            <td style="color:var(--mt);font-size:.73rem">${new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  else if (tab === 'txs') {
+    const txs = DB.transactions;
+    if (!txs.length) { el.innerHTML = '<div class="data-empty">No transactions saved yet.</div>'; return; }
+    const sus  = txs.filter(t => t.status === 'suspicious').length;
+    const blk  = txs.filter(t => t.status === 'blocked').length;
+    const tot  = txs.reduce((s,t) => s + (t.status !== 'blocked' ? t.amount : 0), 0);
+    const bgs  = { normal:'rgba(52,211,153,.1)',suspicious:'rgba(251,191,36,.1)',blocked:'rgba(248,113,113,.1)' };
+    const clrs = { normal:'var(--gn)',suspicious:'var(--wn)',blocked:'var(--dg)' };
+    const slice = txs.slice(0, 250);
+    el.innerHTML = `
+      <div class="info-box green">💳 <strong>${txs.length.toLocaleString()} transactions</strong> · ₹${tot.toLocaleString('en-IN')} total · <span style="color:var(--wn)">${sus} suspicious</span> · <span style="color:var(--dg)">${blk} blocked</span></div>
+      <table class="data-table">
+        <thead><tr><th>Merchant</th><th>Amount</th><th>Category</th><th>Status</th><th>Account</th><th>Time</th></tr></thead>
+        <tbody>${slice.map(tx => `
+          <tr>
+            <td title="${tx.merchant}">${tx.merchant}</td>
+            <td style="font-family:monospace;color:var(--ac)">₹${tx.amount.toLocaleString('en-IN')}</td>
+            <td style="color:var(--mt)">${tx.category}</td>
+            <td><span style="padding:2px 7px;border-radius:10px;font-size:.7rem;font-weight:600;background:${bgs[tx.status]};color:${clrs[tx.status]}">${tx.status}</span></td>
+            <td style="color:var(--mt);font-size:.73rem">${(tx.ue||'').split('@')[0]}</td>
+            <td style="color:var(--mt);font-size:.73rem">${tx.time||''}</td>
+          </tr>`).join('')}
+          ${txs.length > 250 ? `<tr><td colspan="6" style="text-align:center;color:var(--mt);padding:10px">…and ${(txs.length-250).toLocaleString()} more</td></tr>` : ''}
+        </tbody>
+      </table>`;
+  }
+
+  else {
+    const sz   = getStorageSize();
+    const sess = DB.session ? DB.users.find(u => u.email === DB.session) : null;
+    const lb   = localStorage.getItem('qsc_last_backup') || 'Never';
+    el.innerHTML = `
+      <div class="info-box green">🔑 <strong>Active session:</strong> ${sess ? `${sess.name} (${sess.email})` : 'None'}<br>
+      Survives: tab close ✅ · browser restart ✅ · computer restart ✅<br>
+      Lost only if: you clear browser storage ⚠️</div>
+      <div class="info-box blue">
+        <strong style="color:var(--tx);display:block;margin-bottom:6px">Storage details</strong>
+        Key: <code style="font-family:monospace;color:var(--ac)">qsc_v5</code><br>
+        Size used: ~${sz}<br>
+        Accounts: ${DB.users.length}<br>
+        Transactions: ${DB.transactions.length.toLocaleString()}<br>
+        Last backup: ${lb}
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="backupData()">📦 Download Backup</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('restore-file').click()">♻️ Restore Backup</button>
+      </div>
+      <p style="font-size:.75rem;color:var(--mt);margin-top:10px">Backup saves everything — accounts + all transactions. Restore merges it back, even on a new computer or browser.</p>`;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   BACKUP & RESTORE
+═══════════════════════════════════════════════════════ */
+function getStorageSize() {
+  try {
+    const raw = localStorage.getItem(DB_KEY) || '{}';
+    const bytes = new Blob([raw]).size;
+    if (bytes < 1024) return bytes + 'B';
+    if (bytes < 1048576) return (bytes/1024).toFixed(1) + 'KB';
+    return (bytes/1048576).toFixed(2) + 'MB';
+  } catch(e) { return 'unknown'; }
+}
+
+function refreshStorageInfo() {
+  const el = document.getElementById('storage-info'); if (!el) return;
+  const n  = DB.users.length;
+  const t  = DB.transactions.length;
+  el.textContent = `${n} account${n!==1?'s':''} · ${t.toLocaleString()} transaction${t!==1?'s':''} · ~${getStorageSize()} used`;
+
+  // Update EmailJS status in settings
+  const statusEl = document.getElementById('settings-emailjs-status');
+  const btnEl    = document.getElementById('settings-emailjs-btn');
+  if (statusEl) {
+    if (_emailjsReady) {
+      statusEl.textContent = '✅ Connected — alerts active';
+      statusEl.style.color = 'var(--gn)';
+      if (btnEl) btnEl.textContent = 'Reconfigure';
+    } else {
+      statusEl.textContent = 'Not configured — click Set Up to connect';
+      statusEl.style.color = '';
+      if (btnEl) btnEl.textContent = 'Set Up';
+    }
+  }
+}
+
+function backupData() {
+  const backup = { version: 'qsc_v5', exportedAt: new Date().toISOString(), data: DB };
+  const blob   = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+  const url    = URL.createObjectURL(blob);
+  const a      = document.createElement('a');
+  a.href = url;
+  a.download = `quantum_secure_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  localStorage.setItem('qsc_last_backup', new Date().toLocaleString('en-IN'));
+  toast('📦 Backup downloaded!', 'g');
+  if (activeDbTab === 'info') dbTab('info');
+}
+
+function restoreBackup(input) {
+  const f = input.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed   = JSON.parse(e.target.result);
+      const restored = parsed.data || parsed;
+      if (!restored.users || !Array.isArray(restored.users)) { toast('❌ Invalid backup file', 'd'); return; }
+      let au = 0, at = 0;
+      restored.users.forEach(u => { if (!DB.users.find(x => x.email === u.email)) { DB.users.push(u); au++; } });
+      (restored.transactions || []).forEach(t => { if (!DB.transactions.find(x => x.id === t.id)) { DB.transactions.push(t); at++; } });
+      dbSave();
+      if (S.user) S.txs = DB.transactions.filter(t => t.ue === S.user.email);
+      toast(`♻️ Restored: +${au} accounts, +${at} transactions`, 'g');
+      refreshStorageInfo();
+      if (document.getElementById('modal-db').classList.contains('open')) dbTab(activeDbTab);
+    } catch(err) { toast('❌ Could not read backup file', 'd'); }
+  };
+  reader.readAsText(f);
+  input.value = '';
+}
+
+/* ═══════════════════════════════════════════════════════
+   EDIT PROFILE
+═══════════════════════════════════════════════════════ */
+function openProfile() {
+  if (!S.user) return;
+  document.getElementById('prof-name').value  = S.user.name  || '';
+  document.getElementById('prof-email').value = S.user.email || '';
+  document.getElementById('prof-phone').value = S.user.phone || '';
+  document.getElementById('prof-display-name').textContent  = S.user.name;
+  document.getElementById('prof-display-email').textContent = S.user.email;
+  document.getElementById('prof-photo-initial').textContent = S.user.name[0].toUpperCase();
+  const img = document.getElementById('prof-photo-img');
+  if (S.user.photo) {
+    img.src = S.user.photo; img.style.display = '';
+    document.getElementById('prof-photo-initial').style.display = 'none';
+    document.getElementById('prof-remove-photo').style.display = '';
+  } else {
+    img.style.display = 'none';
+    document.getElementById('prof-photo-initial').style.display = '';
+    document.getElementById('prof-remove-photo').style.display = 'none';
+  }
+  // Load notification preference
+  const pref = S.user.notifPref || 'both';
+  document.getElementById('prof-notif-pref').value = pref;
+  document.querySelectorAll('#prof-notif-options .notif-choice-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.val === pref);
+  });
+  ['prof-email-e','prof-phone-e'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('modal-profile').classList.add('open');
+}
+
+function handleProfilePhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  if (!file.type.startsWith('image/')) { toast('❌ Please select an image file.', 'd'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    const img  = document.getElementById('prof-photo-img');
+    img.src = data; img.style.display = '';
+    document.getElementById('prof-photo-initial').style.display = 'none';
+    document.getElementById('prof-remove-photo').style.display = '';
+    // store temporarily until save
+    window._pendingPhoto = data;
+  };
+  reader.readAsDataURL(file);
+  input.value = '';
+}
+
+function removeProfilePhoto() {
+  window._pendingPhoto = null;
+  window._removePhoto  = true;
+  document.getElementById('prof-photo-img').style.display = 'none';
+  document.getElementById('prof-photo-initial').style.display = '';
+  document.getElementById('prof-remove-photo').style.display = 'none';
+}
+
+function saveProfile() {
+  const name  = (document.getElementById('prof-name').value  || '').trim();
+  const email = (document.getElementById('prof-email').value || '').trim().toLowerCase();
+  const phone = (document.getElementById('prof-phone').value || '').trim();
+
+  let ok = true;
+  const setErr = (id, cond, msg) => {
+    const el = document.getElementById(id);
+    if (msg) el.textContent = msg;
+    el.classList.toggle('on', cond);
+    if (cond) ok = false;
+  };
+  const phoneDigits = phone.replace(/\D/g,'');
+  setErr('prof-email-e', !email || !email.includes('@'), 'Enter a valid email.');
+  setErr('prof-phone-e', phone && phoneDigits.length < 10, 'Enter a valid phone number (min 10 digits).');
+  if (!ok) return;
+
+  // Check if email changed to something already used by another account
+  if (email !== S.user.email && DB.users.find(u => u.email === email)) {
+    setErr('prof-email-e', true, 'This email is already registered to another account.');
+    return;
+  }
+
+  const oldEmail = S.user.email;
+
+  // Apply changes
+  S.user.name  = name  || S.user.name;
+  S.user.email = email || S.user.email;
+  if (phone) S.user.phone = phone;
+  S.user.notifPref = document.getElementById('prof-notif-pref').value || 'both';
+  if (window._pendingPhoto) { S.user.photo = window._pendingPhoto; window._pendingPhoto = null; }
+  if (window._removePhoto)  { S.user.photo = null; window._removePhoto = false; }
+
+  // Update session if email changed
+  if (email !== oldEmail) {
+    DB.session = email;
+    DB.transactions.filter(t => t.ue === oldEmail).forEach(t => t.ue = email);
+    S.txs = DB.transactions.filter(t => t.ue === email);
+  }
+  dbSave();
+
+  // Update nav avatar
+  const first = S.user.name.split(' ')[0];
+  document.getElementById('dash-name').textContent = first;
+  if (S.user.photo) {
+    document.getElementById('dash-av').innerHTML = `<img src="${S.user.photo}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`;
+  } else {
+    document.getElementById('dash-av').textContent = first[0].toUpperCase();
+  }
+
+  closeModal('modal-profile');
+  toast('✅ Profile updated successfully!', 'g');
+}
+
+/* ═══════════════════════════════════════════════════════
+   BLOCK REASON
+═══════════════════════════════════════════════════════ */
+let _blockTarget = null;
+let _selectedBlockReason = '';
+
+function openBlockModal(target) {
+  _blockTarget = target;
+  _selectedBlockReason = '';
+  document.querySelectorAll('.reason-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('block-other-wrap').style.display = 'none';
+  document.getElementById('block-other-input').value = '';
+  document.getElementById('block-other-e').classList.remove('on');
+  document.getElementById('modal-block-reason').classList.add('open');
+}
+
+function selectBlockReason(btn, reason) {
+  document.querySelectorAll('.reason-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _selectedBlockReason = reason;
+  if (reason === 'other') {
+    document.getElementById('block-other-wrap').style.display = 'block';
+  } else {
+    document.getElementById('block-other-wrap').style.display = 'none';
+  }
+}
+
+function confirmBlock() {
+  let reason = _selectedBlockReason;
+  if (!reason) { toast('⚠️ Please select a reason to block.', 'w'); return; }
+  if (reason === 'other') {
+    const custom = (document.getElementById('block-other-input').value || '').trim();
+    if (!custom) { document.getElementById('block-other-e').classList.add('on'); return; }
+    reason = custom;
+  }
+  closeModal('modal-block-reason');
+  closeModal('modal-profile');
+  toast(`🚫 Account blocked: "${reason}"`, 'd');
+}
+
+/* ═══════════════════════════════════════════════════════
+   REPORT MODAL
+═══════════════════════════════════════════════════════ */
+let _selectedReport = '';
+
+function openReportModal(target) {
+  _selectedReport = '';
+  document.querySelectorAll('.report-option').forEach(b => b.classList.remove('selected'));
+  document.getElementById('report-detail-wrap').style.display = 'none';
+  document.getElementById('report-type-e').classList.remove('on');
+  // Reset all fields
+  ['report-date','report-card','report-amount','report-merchant','report-desc'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  ['report-time','report-bank'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.selectedIndex = 0;
+  });
+  ['report-date-e','report-card-e','report-desc-e'].forEach(id => document.getElementById(id)?.classList.remove('on'));
+  // Set max date to today
+  document.getElementById('report-date').max = new Date().toISOString().split('T')[0];
+  const btn = document.getElementById('report-submit-btn');
+  btn.style.opacity = '.45'; btn.style.pointerEvents = 'none';
+  document.getElementById('modal-report').classList.add('open');
+}
+
+function selectReportOption(btn, option) {
+  document.querySelectorAll('.report-option').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _selectedReport = option;
+  document.getElementById('report-type-e').classList.remove('on');
+  document.getElementById('report-detail-wrap').style.display = 'block';
+  const submitBtn = document.getElementById('report-submit-btn');
+  submitBtn.style.opacity = '1'; submitBtn.style.pointerEvents = '';
+}
+
+function submitReport() {
+  if (!_selectedReport) {
+    document.getElementById('report-type-e').classList.add('on');
+    return;
+  }
+  const date     = document.getElementById('report-date').value;
+  const card     = (document.getElementById('report-card').value || '').trim();
+  const desc     = (document.getElementById('report-desc').value || '').trim();
+  const merchant = (document.getElementById('report-merchant').value || '').trim();
+  const amount   = (document.getElementById('report-amount').value || '').trim();
+
+  let ok = true;
+  const setErr = (id, cond) => { document.getElementById(id)?.classList.toggle('on', cond); if (cond) ok = false; };
+  setErr('report-date-e', !date);
+  setErr('report-card-e', card && (card.length !== 4 || !/^\d{4}$/.test(card)));
+  setErr('report-desc-e', !desc);
+  if (!ok) return;
+
+  closeModal('modal-report');
+  closeModal('modal-profile');
+
+  // Show report submitted notification
+  showReportNotification({ type: _selectedReport, date, card, merchant, amount, desc });
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   NOTIFICATION PREFERENCE HELPERS
+═══════════════════════════════════════════════════════ */
+function selectNotifPref(btn) {
+  document.querySelectorAll('#su-notif-options .notif-choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('su-notif-pref').value = btn.dataset.val;
+}
+function selectProfNotifPref(btn) {
+  document.querySelectorAll('#prof-notif-options .notif-choice-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('prof-notif-pref').value = btn.dataset.val;
+}
+
+function getUserPref() {
+  return (S.user && S.user.notifPref) ? S.user.notifPref : 'both';
+}
+function wantsEmail(pref) { return pref === 'email' || pref === 'both'; }
+function wantsSMS(pref)   { return pref === 'sms'   || pref === 'both'; }
+
+// ── REAL EMAIL via EmailJS ──────────────────────────────
+async function sendEmailAlert(subject, body) {
+  if (!_emailjsReady) {
+    console.warn('[EmailJS] Keys not configured — open the setup wizard on the dashboard.');
+    return;
+  }
+  try {
+    await emailjs.send(_ejsKeys.serviceId, _ejsKeys.templateId, {
+      to_email: S.user.email,
+      to_name:  S.user.name,
+      subject:  subject,
+      message:  body
+    });
+    console.log('[EmailJS] ✅ Sent to', S.user.email);
+  } catch (err) {
+    console.error('[EmailJS] Failed:', err);
+    toast('⚠️ Email failed — check your EmailJS keys in the setup wizard.', 'w');
+  }
+}
+
+// ── SMS ─────────────────────────────────────────────────
+// SMS requires a backend (CORS restriction). Wire up Fast2SMS
+// or Twilio through a server endpoint when ready.
+async function sendSMSAlert(message) {
+  console.log('[SMS] Not wired yet — message would be:', message);
+}
+
+/* ═══════════════════════════════════════════════════════
+   LOGIN / SIGNUP NOTIFICATION
+═══════════════════════════════════════════════════════ */
+function maskEmail(email) {
+  const [u, d] = email.split('@');
+  const masked = u.length <= 2 ? u[0] + '***' : u.slice(0, 2) + '***' + u.slice(-1);
+  return masked + '@' + d;
+}
+function maskPhone(phone) {
+  const digits = (phone || '').replace(/\D/g, '');
+  if (digits.length < 6) return phone || 'N/A';
+  return digits.slice(0, 2) + '******' + digits.slice(-2);
+}
+
+function showLoginNotification(user, type) {
+  const pref = user.notifPref || 'both';
+  if (pref === 'none') { enterDash(); return; }
+
+  const isSignup = type === 'signup';
+  const now = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+
+  const emailSubject = isSignup
+    ? `[Quantum Secure] Account Created — ${now}`
+    : `[Quantum Secure] Sign-In Alert — ${now}`;
+  const emailBody = isSignup
+    ? `Hello ${user.name},\n\nYour Quantum Secure Card account was just created.\n\nTime: ${now}\nEmail: ${user.email}\n\nIf this was not you, contact support immediately.\n\n— Quantum Secure Team`
+    : `Hello ${user.name},\n\nA sign-in was detected on your Quantum Secure Card account.\n\nTime: ${now}\nDevice: Web Browser\n\nIf this was not you, lock your card immediately from the app.\n\n— Quantum Secure Team`;
+  const smsMessage = isSignup
+    ? `QSC: Account created at ${now}. Not you? Contact support immediately.`
+    : `QSC Alert: Sign-in at ${now}. Not you? Lock your card now.`;
+
+  // Trigger actual channels
+  if (wantsEmail(pref)) sendEmailAlert(emailSubject, emailBody);
+  if (wantsSMS(pref))   sendSMSAlert(smsMessage);
+
+  // Build modal UI
+  document.getElementById('ln-icon').textContent = isSignup ? '🎉' : '🔔';
+  document.getElementById('ln-title').textContent = isSignup ? 'Account Created!' : 'Sign-In Alert Sent';
+  document.getElementById('ln-sub').textContent = isSignup
+    ? `Welcome, ${user.name.split(' ')[0]}! Security alerts sent to your registered contacts.`
+    : `Successful sign-in detected. Security alerts dispatched based on your preferences.`;
+
+  const emailRow = document.getElementById('ln-email-row');
+  const phoneRow = document.getElementById('ln-phone-row');
+  const noneNote = document.getElementById('ln-none-note');
+
+  emailRow.style.display = wantsEmail(pref) ? 'flex' : 'none';
+  phoneRow.style.display = wantsSMS(pref)   ? 'flex' : 'none';
+  noneNote.style.display = pref === 'none'  ? 'block' : 'none';
+
+  if (wantsEmail(pref)) {
+    document.getElementById('ln-email-to').textContent  = maskEmail(user.email);
+    document.getElementById('ln-email-msg').textContent = emailSubject;
+    document.getElementById('ln-email-badge').textContent = '✓ Queued';
+    document.getElementById('ln-email-badge').className  = 'badge badge-green';
+  }
+  if (wantsSMS(pref)) {
+    document.getElementById('ln-phone-to').textContent  = user.phone ? maskPhone(user.phone) : 'No phone saved';
+    document.getElementById('ln-phone-msg').textContent = user.phone ? smsMessage : 'Add a phone number in your profile to receive SMS alerts.';
+    document.getElementById('ln-phone-badge').textContent = user.phone ? '📱 Queued' : '⚠ No phone';
+    document.getElementById('ln-phone-badge').className  = user.phone ? 'badge badge-blue' : 'badge badge-warn';
+  }
+
+  document.getElementById('modal-login-notif').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════
+   REPORT NOTIFICATION
+═══════════════════════════════════════════════════════ */
+function showReportNotification(data) {
+  const pref  = getUserPref();
+  const now   = new Date().toLocaleString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true });
+  const refId = 'RPT-' + Date.now().toString(36).toUpperCase().slice(-6);
+
+  const emailSubject = `[Quantum Secure] Report Submitted — Ref: ${refId}`;
+  const emailBody = [
+    `Hello ${S.user.name},`,
+    ``,
+    `Your security report has been received.`,
+    ``,
+    `Reference: ${refId}`,
+    `Issue Type: ${data.type}`,
+    data.date     ? `Date of Incident: ${data.date}` : '',
+    data.merchant ? `Merchant: ${data.merchant}`      : '',
+    data.amount   ? `Amount: ₹${parseFloat(data.amount).toLocaleString('en-IN')}` : '',
+    data.card     ? `Card (last 4): ****${data.card}` : '',
+    ``,
+    `Submitted: ${now}`,
+    ``,
+    `Our security team will review this within 24 hours.`,
+    ``,
+    `— Quantum Secure Team`
+  ].filter(l => l !== undefined && !(l === '' && emailBody === undefined)).join('\n');
+
+  const smsMessage = `QSC: Report ${refId} received. Issue: ${data.type.slice(0,30)}. We'll review in 24h.`;
+
+  if (wantsEmail(pref)) sendEmailAlert(emailSubject, emailBody);
+  if (wantsSMS(pref))   sendSMSAlert(smsMessage);
+
+  const summaryLines = [
+    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Reference</span><strong style="color:var(--ac)">${refId}</strong></div>`,
+    `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Issue</span><span style="text-align:right;max-width:60%">${data.type}</span></div>`,
+    data.date     ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Date</span><span>${data.date}</span></div>` : '',
+    data.merchant ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Merchant</span><span>${data.merchant}</span></div>` : '',
+    data.amount   ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Amount</span><span>&#8377;${parseFloat(data.amount).toLocaleString('en-IN')}</span></div>` : '',
+    data.card     ? `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bd)"><span style="color:var(--mt)">Card</span><span>****${data.card}</span></div>` : '',
+    `<div style="padding:5px 0;font-size:.73rem;color:var(--mt)">Submitted at ${now}</div>`,
+  ].filter(Boolean).join('');
+
+  document.getElementById('rn-summary').innerHTML = summaryLines;
+
+  // Show/hide rows based on pref
+  const rEmailRow = document.getElementById('rn-email-row');
+  const rPhoneRow = document.getElementById('rn-phone-row');
+  const rNoneNote = document.getElementById('rn-none-note');
+  rEmailRow.style.display = wantsEmail(pref) ? 'flex' : 'none';
+  rPhoneRow.style.display = wantsSMS(pref)   ? 'flex' : 'none';
+  rNoneNote.style.display = pref === 'none'  ? 'block' : 'none';
+
+  if (wantsEmail(pref)) document.getElementById('rn-email-line').textContent = `Confirmation queued to ${maskEmail(S.user.email)}`;
+  if (wantsSMS(pref))   document.getElementById('rn-phone-line').textContent  = S.user.phone ? `SMS queued to ${maskPhone(S.user.phone)}` : 'Add phone number for SMS alerts';
+
+  document.getElementById('modal-report-notif').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════
+   FRAUD BLOCK FLOW (with reason + no-deduct message)
+═══════════════════════════════════════════════════════ */
+let _fraudBlockTxId = null;
+let _fraudBlockReason = '';
+
+function openFraudBlockModal(txId) {
+  _fraudBlockTxId = txId;
+  _fraudBlockReason = '';
+  document.querySelectorAll('#fraud-block-reasons .reason-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('fraud-block-other-wrap').style.display = 'none';
+  document.getElementById('fraud-block-other-input').value = '';
+  document.getElementById('fraud-block-other-e').classList.remove('on');
+  document.getElementById('modal-fraud-block').classList.add('open');
+}
+function selectFraudBlockReason(btn, reason) {
+  document.querySelectorAll('#fraud-block-reasons .reason-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  _fraudBlockReason = reason;
+  document.getElementById('fraud-block-other-wrap').style.display = reason === 'other' ? 'block' : 'none';
+}
+function confirmFraudBlock() {
+  let reason = _fraudBlockReason;
+  if (!reason) { toast('Please select a reason.', 'w'); return; }
+  if (reason === 'other') {
+    const custom = (document.getElementById('fraud-block-other-input').value || '').trim();
+    if (!custom) { document.getElementById('fraud-block-other-e').classList.add('on'); return; }
+    reason = custom;
+  }
+  const tx = S.txs.find(t => t.id === _fraudBlockTxId); if (!tx) return;
+  tx.status = 'blocked'; tx.blockReason = reason;
+  const dt = DB.transactions.find(t => t.id === _fraudBlockTxId);
+  if (dt) { dt.status = 'blocked'; dt.blockReason = reason; }
+  dbSave();
+  closeModal('modal-fraud-block');
+
+  // Send alerts based on preference
+  const pref = getUserPref();
+  if (wantsEmail(pref)) {
+    const subj = `[Quantum Secure] Transaction Blocked — ${tx.merchant}`;
+    const body = `Hello ${S.user.name},\n\nA transaction on your card has been blocked.\n\nMerchant: ${tx.merchant}\nAmount: ₹${tx.amount.toLocaleString('en-IN')}\nReason: ${reason}\n\nNo money has been deducted. Our team will review this within 24 hours.\n\n— Quantum Secure Team`;
+    sendEmailAlert(subj, body);
+  }
+  if (wantsSMS(pref)) sendSMSAlert(`QSC: Blocked ₹${tx.amount.toLocaleString('en-IN')} at ${tx.merchant}. Reason: ${reason.slice(0,40)}. No money deducted.`);
+
+  document.getElementById('fbc-merchant-text').innerHTML = `${tx.merchant} &mdash; &#8377;${tx.amount.toLocaleString('en-IN')} has been blocked.`;
+  document.getElementById('fbc-reason-text').textContent = `Reason recorded: "${reason}". Our security team will investigate within 24 hours and notify you.`;
+
+  // Show/hide alert rows by pref
+  document.getElementById('fbc-email-row').style.display = wantsEmail(pref) ? 'flex' : 'none';
+  document.getElementById('fbc-phone-row').style.display = wantsSMS(pref)   ? 'flex' : 'none';
+  document.getElementById('fbc-none-note').style.display = pref === 'none'  ? 'block' : 'none';
+  if (wantsEmail(pref)) document.getElementById('fbc-email-line').textContent = `Alert queued to ${maskEmail(S.user.email)}`;
+  if (wantsSMS(pref))   document.getElementById('fbc-phone-line').textContent  = S.user.phone ? `SMS alert queued to ${maskPhone(S.user.phone)}` : 'Add phone number for SMS';
+  document.getElementById('modal-fraud-blocked-confirm').classList.add('open');
+}
+
+/* ═══════════════════════════════════════════════════════
+   MONTHLY CHART
+═══════════════════════════════════════════════════════ */
+let _chartYear = new Date().getFullYear();
+
+function openMonthlyChart() {
+  const years = [...new Set(S.txs.map(t => new Date(t.createdAt).getFullYear()))].sort((a,b) => b-a);
+  const curY = new Date().getFullYear();
+  if (!years.includes(curY)) years.unshift(curY);
+  _chartYear = years[0];
+  const btns = document.getElementById('chart-year-btns');
+  btns.innerHTML = years.map(y =>
+    `<button class="btn ${y === _chartYear ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="setChartYear(${y},this)">${y}</button>`
+  ).join('');
+  document.getElementById('modal-monthly-chart').classList.add('open');
+  setTimeout(() => renderMonthlyChart(), 60);
+  // Re-render on resize
+  if (!window._chartResizeAttached) {
+    window._chartResizeAttached = true;
+    window.addEventListener('resize', () => {
+      if (document.getElementById('modal-monthly-chart').classList.contains('open')) renderMonthlyChart();
+    });
+  }
+}
+function setChartYear(y, btn) {
+  _chartYear = y;
+  document.querySelectorAll('#chart-year-btns .btn').forEach(b => {
+    b.className = b === btn ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+  });
+  renderMonthlyChart();
+}
+function renderMonthlyChart() {
+  const canvas = document.getElementById('monthly-chart-canvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth || 540;
+  const h = 240;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  ctx.scale(dpr, dpr);
+
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const totals = new Array(12).fill(0);
+  const counts = new Array(12).fill(0);
+  const flagged = new Array(12).fill(0);
+  S.txs.forEach(t => {
+    const d = new Date(t.createdAt);
+    if (d.getFullYear() !== _chartYear) return;
+    const m = d.getMonth();
+    if (t.status !== 'blocked') { totals[m] += t.amount; counts[m]++; }
+    if (t.status === 'suspicious') flagged[m]++;
+  });
+
+  const maxVal = Math.max(...totals, 1);
+  const padL = 66, padR = 16, padT = 26, padB = 44;
+  const barW = (w - padL - padR) / 12;
+  const chartH = h - padT - padB;
+
+  const cs = getComputedStyle(document.documentElement);
+  const acColor   = cs.getPropertyValue('--ac').trim()  || '#38bdf8';
+  const warnColor = cs.getPropertyValue('--wn').trim()  || '#fbbf24';
+  const mtColor   = cs.getPropertyValue('--mt').trim()  || '#64748b';
+  const txColor   = cs.getPropertyValue('--tx').trim()  || '#f0f6ff';
+  const bdColor   = cs.getPropertyValue('--bd').trim()  || 'rgba(99,179,237,0.13)';
+  const gnColor   = cs.getPropertyValue('--gn').trim()  || '#34d399';
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Grid
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (chartH / 4) * i;
+    ctx.strokeStyle = bdColor; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(w - padR, y); ctx.stroke();
+    const label = Math.round(maxVal * (1 - i / 4));
+    ctx.fillStyle = mtColor; ctx.font = '10px DM Sans, sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(label >= 1000 ? '\u20B9' + (label/1000).toFixed(1) + 'k' : '\u20B9' + label, padL - 5, y + 4);
+  }
+
+  const curMonth = new Date().getMonth();
+  const isCurYear = _chartYear === new Date().getFullYear();
+
+  for (let i = 0; i < 12; i++) {
+    const barH = totals[i] > 0 ? (totals[i] / maxVal) * chartH : 0;
+    const x = padL + i * barW;
+    const bx = x + barW * 0.12;
+    const bw = barW * 0.76;
+    const by = padT + chartH - barH;
+    const r  = Math.min(5, bw / 2, Math.max(barH / 2, 0.1));
+
+    if (isCurYear && i > curMonth) {
+      ctx.fillStyle = bdColor;
+    } else {
+      const grad = ctx.createLinearGradient(0, by, 0, padT + chartH);
+      grad.addColorStop(0, acColor); grad.addColorStop(1, acColor + '33');
+      ctx.fillStyle = grad;
+    }
+
+    ctx.beginPath();
+    if (barH > r * 2) {
+      ctx.moveTo(bx + r, by); ctx.lineTo(bx + bw - r, by);
+      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + r);
+      ctx.lineTo(bx + bw, padT + chartH); ctx.lineTo(bx, padT + chartH);
+      ctx.lineTo(bx, by + r); ctx.quadraticCurveTo(bx, by, bx + r, by);
+    } else if (barH > 0) {
+      ctx.rect(bx, by, bw, barH);
+    }
+    ctx.closePath(); ctx.fill();
+
+    if (flagged[i] > 0) {
+      ctx.fillStyle = warnColor;
+      ctx.beginPath(); ctx.arc(bx + bw / 2, by - 10, 4, 0, Math.PI * 2); ctx.fill();
+    }
+    if (totals[i] > 0 && barH > 12) {
+      ctx.fillStyle = txColor; ctx.font = 'bold 9px DM Sans, sans-serif'; ctx.textAlign = 'center';
+      const lbl = totals[i] >= 10000 ? '\u20B9' + (totals[i]/1000).toFixed(0) + 'k' : '\u20B9' + totals[i].toLocaleString('en-IN');
+      ctx.fillText(lbl, bx + bw / 2, by - (flagged[i] > 0 ? 20 : 6));
+    }
+
+    ctx.fillStyle = (isCurYear && i === curMonth) ? acColor : mtColor;
+    ctx.font = (isCurYear && i === curMonth) ? 'bold 11px DM Sans, sans-serif' : '10px DM Sans, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(months[i], bx + bw / 2, h - padB + 16);
+  }
+
+  const totalSpend = totals.reduce((a, b) => a + b, 0);
+  const activeMonths = totals.filter(v => v > 0).length;
+  const maxMonth = totals.indexOf(Math.max(...totals));
+  document.getElementById('chart-stats').innerHTML = `
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mt);margin-bottom:4px">Total ${_chartYear}</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--ac)">\u20B9${totalSpend.toLocaleString('en-IN')}</div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mt);margin-bottom:4px">Avg / Month</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--tx)">\u20B9${activeMonths ? Math.round(totalSpend / activeMonths).toLocaleString('en-IN') : 0}</div>
+    </div>
+    <div style="background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center">
+      <div style="font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mt);margin-bottom:4px">Peak Month</div>
+      <div style="font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:800;color:var(--gn)">${totalSpend > 0 ? months[maxMonth] : '\u2014'}</div>
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════════════════
+   EMAILJS SETUP WIZARD
+═══════════════════════════════════════════════════════ */
+function openEmailSetup() {
+  // Pre-fill saved keys if they exist
+  const k = _ejsKeys;
+  document.getElementById('ejs-public-key').value  = k.publicKey  || '';
+  document.getElementById('ejs-service-id').value  = k.serviceId  || '';
+  document.getElementById('ejs-template-id').value = k.templateId || '';
+  ['ejs-pk-e','ejs-si-e','ejs-ti-e'].forEach(id => document.getElementById(id).classList.remove('on'));
+  ejsGo(1);
+  document.getElementById('modal-emailjs-setup').classList.add('open');
+}
+
+function ejsGo(step) {
+  [1,2,3].forEach(n => {
+    document.getElementById('ejs-step-' + n).style.display = n === step ? '' : 'none';
+    const tab = document.getElementById('ejs-step-' + n + '-tab');
+    if (tab) {
+      tab.style.background = n === step ? 'rgba(56,189,248,0.12)' : '';
+      tab.style.color = n === step ? 'var(--ac)' : 'var(--mt)';
+    }
+  });
+}
+
+function ejsSaveKeys() {
+  const pk = document.getElementById('ejs-public-key').value.trim();
+  const si = document.getElementById('ejs-service-id').value.trim();
+  const ti = document.getElementById('ejs-template-id').value.trim();
+
+  let ok = true;
+  const chk = (id, val) => { document.getElementById(id).classList.toggle('on', !val); if (!val) ok = false; };
+  chk('ejs-pk-e', pk);
+  chk('ejs-si-e', si);
+  chk('ejs-ti-e', ti);
+  if (!ok) return;
+
+  // Save to localStorage
+  saveEmailJSKeys({ publicKey: pk, serviceId: si, templateId: ti });
+  _ejsKeys = { publicKey: pk, serviceId: si, templateId: ti };
+  _emailjsReady = true;
+
+  // Re-init EmailJS with new key
+  try { emailjs.init({ publicKey: pk }); } catch(e) {}
+
+  ejsGo(3);
+  ejsRunTest(pk, si, ti);
+}
+
+async function ejsRunTest(pk, si, ti) {
+  document.getElementById('ejs-test-icon').textContent  = '📨';
+  document.getElementById('ejs-test-title').textContent = 'Sending test email…';
+  document.getElementById('ejs-test-msg').textContent   = `Sending to ${S.user ? maskEmail(S.user.email) : 'your email'}…`;
+  document.getElementById('ejs-done-btn').style.display  = 'none';
+  document.getElementById('ejs-retry-btn').style.display = 'none';
+
+  try {
+    await emailjs.send(si, ti, {
+      to_email: S.user ? S.user.email : 'test@example.com',
+      to_name:  S.user ? S.user.name  : 'User',
+      subject:  '[Quantum Secure] ✅ Email alerts connected!',
+      message:  `Hi ${S.user ? S.user.name : 'there'},\n\nEmail alerts are now active on your Quantum Secure Card account.\n\nYou'll receive alerts for:\n• Every sign-in\n• Blocked transactions\n• Submitted reports\n\n— Quantum Secure Team`
+    });
+    document.getElementById('ejs-test-icon').textContent  = '✅';
+    document.getElementById('ejs-test-title').textContent = 'Email connected!';
+    document.getElementById('ejs-test-msg').textContent   = `A test email was sent to ${S.user ? maskEmail(S.user.email) : 'your email'}. Check your inbox (and spam folder).`;
+    document.getElementById('ejs-done-btn').style.display = '';
+    toast('✅ EmailJS connected — real alerts now active!', 'g');
+  } catch(err) {
+    console.error('[EmailJS test]', err);
+    document.getElementById('ejs-test-icon').textContent  = '❌';
+    document.getElementById('ejs-test-title').textContent = 'Test failed';
+    document.getElementById('ejs-test-msg').textContent   = `Error: ${err?.text || err?.message || 'Check your keys and template setup.'}`;
+    document.getElementById('ejs-done-btn').style.display  = 'none';
+    document.getElementById('ejs-retry-btn').style.display = '';
+    // Roll back — keys invalid
+    _emailjsReady = false;
+  }
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+/* ═══════════════════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════════════════ */
+function toast(msg, type) {
+  const el = document.getElementById('toast');
+  const colors = { g: 'var(--gn)', d: 'var(--dg)', w: 'var(--wn)', b: 'var(--ac)' };
+  el.style.borderColor = colors[type] || 'var(--bd)';
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD NUMBER AUTO-FORMAT
+═══════════════════════════════════════════════════════ */
+['li-card','su-card'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    const v = el.value.replace(/\D/g,'').slice(0,16);
+    el.value = v.match(/.{1,4}/g)?.join(' ') || v;
+  });
+});
+
+/* ═══════════════════════════════════════════════════════
+   INIT — auto-login if session exists
+═══════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', () => {
+  applyTheme(theme);
+  // Always show auth screen on page load — banking-style re-login behaviour
+  showPage('auth');
+  showTab('login');
+  // If there's a previously saved session (returning user), show "session expired" notice
+  if (DB.session && DB.users.find(u => u.email === DB.session)) {
+    const notice = document.getElementById('session-expired-notice');
+    if (notice) notice.style.display = 'block';
+    // Pre-fill email for convenience
+    const emailEl = document.getElementById('li-email');
+    if (emailEl) emailEl.value = DB.session;
+  }
+});
+</script>
+</body>
+</html>
